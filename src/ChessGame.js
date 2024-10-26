@@ -1,5 +1,5 @@
 import React, {useState} from 'react';
-import {View, StyleSheet, TouchableOpacity} from 'react-native';
+import {View, StyleSheet, TouchableOpacity, Text} from 'react-native';
 import {Chess} from 'chess.js';
 
 import BPawn from '../assets/b_pawn.svg';
@@ -33,16 +33,16 @@ const pieceImages = {
 const ChessGame = () => {
   const [game] = useState(new Chess());
   const [board, setBoard] = useState(game.board());
-  const [selectedSquare, setSelectedSquare] = React.useState(null);
+  const [selectedSquare, setSelectedSquare] = useState(null);
 
   const onSquarePress = (row, col) => {
     if (selectedSquare) {
       const newBoard = [...board];
       const piece = newBoard[selectedSquare.row][selectedSquare.col];
-      newBoard[row][col] = piece; // Bewege die Figur
-      newBoard[selectedSquare.row][selectedSquare.col] = null; // Leeres Feld
+      newBoard[row][col] = piece;
+      newBoard[selectedSquare.row][selectedSquare.col] = null;
       setBoard(newBoard);
-      setSelectedSquare(null); // Zurücksetzen der Auswahl
+      setSelectedSquare(null);
     } else {
       setSelectedSquare({row, col});
     }
@@ -50,7 +50,7 @@ const ChessGame = () => {
 
   const renderSquare = (piece, row, col) => {
     const isBlack = (row + col) % 2 === 1;
-    const backgroundColor = isBlack ? '#769656' : '#eeeed2'; //green and yellow
+    const backgroundColor = isBlack ? '#769656' : '#eeeed2';
 
     return (
       <TouchableOpacity
@@ -67,15 +67,45 @@ const ChessGame = () => {
   };
 
   return (
-    <View style={styles.board}>
-      {board.map((row, rowIndex) =>
-        row.map((piece, colIndex) => renderSquare(piece, rowIndex, colIndex)),
-      )}
+    <View style={styles.container}>
+      {/* Linksseitige Reihenkoordinaten */}
+      <View style={styles.rowLabels}>
+        {Array.from({length: 8}, (_, index) => (
+          <Text key={index} style={styles.labelText}>
+            {8 - index}
+          </Text>
+        ))}
+      </View>
+
+      {/* Schachbrett und Spaltenkoordinaten */}
+      <View>
+        <View style={styles.board}>
+          {board.map((row, rowIndex) =>
+            row.map((piece, colIndex) =>
+              renderSquare(piece, rowIndex, colIndex),
+            ),
+          )}
+        </View>
+        {/* Untere Spaltenkoordinaten */}
+        <View style={styles.columnLabels}>
+          {['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H'].map((label, index) => (
+            <Text key={index} style={styles.labelText}>
+              {label}
+            </Text>
+          ))}
+        </View>
+      </View>
     </View>
   );
 };
 
 const styles = StyleSheet.create({
+  container: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginLeft: -20, // Verschiebt das gesamte Schachbrett nach links
+  },
   board: {
     flexDirection: 'row',
     flexWrap: 'wrap',
@@ -87,6 +117,23 @@ const styles = StyleSheet.create({
     height: 40,
     alignItems: 'center',
     justifyContent: 'center',
+  },
+  rowLabels: {
+    justifyContent: 'space-between',
+    height: 320,
+    paddingBottom: 22, // Verschiebt die Zahlen leicht nach oben
+    paddingRight: 4, // Abstand zum Schachbrett
+  },
+  columnLabels: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginTop: 4,
+  },
+  labelText: {
+    fontSize: 16,
+    fontWeight: 'bold', // Fettgedruckt
+    textAlign: 'center',
+    width: 40,
   },
 });
 
