@@ -2,7 +2,7 @@ This is a new [**React Native**](https://reactnative.dev) project, bootstrapped 
 
 # Getting Started
 
->**Note**: Make sure you have completed the [React Native - Environment Setup](https://reactnative.dev/docs/environment-setup) instructions till "Creating a new application" step, before proceeding.
+> **Note**: Make sure you have completed the [React Native - Environment Setup](https://reactnative.dev/docs/environment-setup) instructions till "Creating a new application" step, before proceeding.
 
 ## Step 1: Start the Metro Server
 
@@ -13,6 +13,7 @@ To start Metro, run the following command from the _root_ of your React Native p
 ```bash
 # using npm
 npm start
+#npx react-native start
 
 # OR using Yarn
 yarn start
@@ -27,9 +28,7 @@ Let Metro Bundler run in its _own_ terminal. Open a _new_ terminal from the _roo
 ```bash
 # using npm
 npm run android
-
-# OR using Yarn
-yarn android
+#npx react-native run-android
 ```
 
 ### For iOS
@@ -37,9 +36,15 @@ yarn android
 ```bash
 # using npm
 npm run ios
+#npx react-native run-ios
+```
 
-# OR using Yarn
-yarn ios
+```bash
+npx react-native doctor
+```
+
+```bash
+npm run start -- --reset-cache
 ```
 
 If everything is set up _correctly_, you should see your new app running in your _Android Emulator_ or _iOS Simulator_ shortly provided you have set up your emulator/simulator correctly.
@@ -67,6 +72,8 @@ You've successfully run and modified your React Native App. :partying_face:
 # Troubleshooting
 
 If you can't get this to work, see the [Troubleshooting](https://reactnative.dev/docs/troubleshooting) page.
+
+Emulator should be in a lower version (here: API 30). API 35 doesnt work, screen was shown shortly and then closed.
 
 # Learn More
 
