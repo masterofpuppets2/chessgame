@@ -2,8 +2,6 @@ This is a new [**React Native**](https://reactnative.dev) project, bootstrapped 
 
 # Getting Started
 
-> **Note**: Make sure you have completed the [React Native - Environment Setup](https://reactnative.dev/docs/environment-setup) instructions till "Creating a new application" step, before proceeding.
-
 ## Step 1: Start the Metro Server
 
 First, you will need to start **Metro**, the JavaScript _bundler_ that ships _with_ React Native.
@@ -11,12 +9,8 @@ First, you will need to start **Metro**, the JavaScript _bundler_ that ships _wi
 To start Metro, run the following command from the _root_ of your React Native project:
 
 ```bash
-# using npm
-npm start
+npm run start -- --reset-cache
 #npx react-native start
-
-# OR using Yarn
-yarn start
 ```
 
 ## Step 2: Start your Application
@@ -26,7 +20,6 @@ Let Metro Bundler run in its _own_ terminal. Open a _new_ terminal from the _roo
 ### For Android
 
 ```bash
-# using npm
 npm run android
 #npx react-native run-android
 ```
@@ -34,17 +27,12 @@ npm run android
 ### For iOS
 
 ```bash
-# using npm
 npm run ios
 #npx react-native run-ios
 ```
 
 ```bash
 npx react-native doctor
-```
-
-```bash
-npm run start -- --reset-cache
 ```
 
 If everything is set up _correctly_, you should see your new app running in your _Android Emulator_ or _iOS Simulator_ shortly provided you have set up your emulator/simulator correctly.
@@ -60,20 +48,22 @@ Now that you have successfully run the app, let's modify it.
 
    For **iOS**: Hit <kbd>Cmd ⌘</kbd> + <kbd>R</kbd> in your iOS Simulator to reload the app and see your changes!
 
-## Congratulations! :tada:
+# TODO
 
-You've successfully run and modified your React Native App. :partying_face:
-
-### Now what?
-
-- If you want to add this new React Native code to an existing application, check out the [Integration guide](https://reactnative.dev/docs/integration-with-existing-apps).
-- If you're curious to learn more about React Native, check out the [Introduction to React Native](https://reactnative.dev/docs/getting-started).
+- add notation
+- allow only valid moves -> castel, en passant, transform pawn into queen
+- allow return moves
+- open window, when opponent is mated
 
 # Troubleshooting
 
-If you can't get this to work, see the [Troubleshooting](https://reactnative.dev/docs/troubleshooting) page.
-
 Emulator should be in a lower version (here: API 30). API 35 doesnt work, screen was shown shortly and then closed.
+
+Konfiguration des Icons:
+
+Je nach deiner React Native-Version musst du möglicherweise die Fontdateien in die iOS- und Android-Projekte einfügen. In der android/app/build.gradle-Datei:
+
+apply from: "../../node_modules/react-native-vector-icons/fonts.gradle"
 
 # Learn More
 
