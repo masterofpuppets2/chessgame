@@ -36,6 +36,7 @@ const ChessGame = () => {
   const [board, setBoard] = useState(game.board());
   const [selectedSquare, setSelectedSquare] = useState(null);
   const [isFlipped, setIsFlipped] = useState(false);
+  const [errorMessage, setErrorMessage] = useState(null);
 
   const onSquarePress = (row, col) => {
     // Konvertiert die angeklickten Koordinaten basierend auf `isFlipped`
@@ -46,20 +47,24 @@ const ChessGame = () => {
       const selectedRow = selectedSquare.row;
       const selectedCol = selectedSquare.col;
 
-      // Führt den Zug im `chess.js`-Objekt aus
+      // Bereite den Zug für `chess.js` vor
       const from = `${String.fromCharCode(97 + selectedCol)}${8 - selectedRow}`;
       const to = `${String.fromCharCode(97 + adjustedCol)}${8 - adjustedRow}`;
 
-      if (game.move({from, to})) {
-        // Aktualisiere das Brett nur, wenn der Zug legal ist
-        setBoard(game.board());
-        setSelectedSquare(null);
-      } else {
-        // Illegaler Zug, Abwahl des Feldes
+      try {
+        // Führe den Zug nur aus, wenn er legal ist
+        if (game.move({from, to})) {
+          // Aktualisiere das Brett nur bei einem legalen Zug
+          setBoard(game.board());
+          setErrorMessage(null);
+        }
+      } catch (error) {
+        setErrorMessage('Illegaler Zug');
+      } finally {
         setSelectedSquare(null);
       }
     } else {
-      // Setzt das ausgewählte Feld neu
+      // Setze die aktuelle Auswahl
       setSelectedSquare({row: adjustedRow, col: adjustedCol});
     }
   };
@@ -126,6 +131,9 @@ const ChessGame = () => {
           <Icon name="autorenew" size={30} color="#333" />
           {/* rotate-90-degrees-ccw */}
         </TouchableOpacity>
+        {errorMessage && (
+          <Text style={styles.errorMessage}>{errorMessage}</Text>
+        )}
       </View>
     </View>
   );
@@ -137,6 +145,13 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     marginLeft: -20, // Verschiebt das gesamte Schachbrett nach links
+  },
+  errorMessage: {
+    color: 'red',
+    fontWeight: 'bold',
+    textAlign: 'center',
+    marginBottom: 10,
+    padding: 10,
   },
   board: {
     flexDirection: 'row',
