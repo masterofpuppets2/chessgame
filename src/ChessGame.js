@@ -38,15 +38,29 @@ const ChessGame = () => {
   const [isFlipped, setIsFlipped] = useState(false);
 
   const onSquarePress = (row, col) => {
+    // Konvertiert die angeklickten Koordinaten basierend auf `isFlipped`
+    const adjustedRow = isFlipped ? 7 - row : row;
+    const adjustedCol = isFlipped ? 7 - col : col;
+
     if (selectedSquare) {
-      const newBoard = [...board];
-      const piece = newBoard[selectedSquare.row][selectedSquare.col];
-      newBoard[row][col] = piece;
-      newBoard[selectedSquare.row][selectedSquare.col] = null;
-      setBoard(newBoard);
-      setSelectedSquare(null);
+      const selectedRow = selectedSquare.row;
+      const selectedCol = selectedSquare.col;
+
+      // Führt den Zug im `chess.js`-Objekt aus
+      const from = `${String.fromCharCode(97 + selectedCol)}${8 - selectedRow}`;
+      const to = `${String.fromCharCode(97 + adjustedCol)}${8 - adjustedRow}`;
+
+      if (game.move({from, to})) {
+        // Aktualisiere das Brett nur, wenn der Zug legal ist
+        setBoard(game.board());
+        setSelectedSquare(null);
+      } else {
+        // Illegaler Zug, Abwahl des Feldes
+        setSelectedSquare(null);
+      }
     } else {
-      setSelectedSquare({row, col});
+      // Setzt das ausgewählte Feld neu
+      setSelectedSquare({row: adjustedRow, col: adjustedCol});
     }
   };
 
@@ -69,17 +83,13 @@ const ChessGame = () => {
   };
 
   const renderBoard = () => {
-    const boardRows = isFlipped ? [...board].reverse() : board;
-    return boardRows.map((row, rowIndex) => {
-      const currentRow = isFlipped ? row.reverse() : row;
-      return currentRow.map((piece, colIndex) =>
-        renderSquare(
-          piece,
-          isFlipped ? 7 - rowIndex : rowIndex,
-          isFlipped ? 7 - colIndex : colIndex,
-        ),
-      );
-    });
+    const displayBoard = isFlipped
+      ? [...board].map(row => [...row].reverse()).reverse()
+      : board;
+
+    return displayBoard.map((row, rowIndex) =>
+      row.map((piece, colIndex) => renderSquare(piece, rowIndex, colIndex)),
+    );
   };
 
   return (

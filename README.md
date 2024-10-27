@@ -50,10 +50,12 @@ Now that you have successfully run the app, let's modify it.
 
 # TODO
 
+- brett von anfang an aufbauen
 - add notation
 - allow only valid moves -> castel, en passant, transform pawn into queen
 - allow return moves
 - open window, when opponent is mated
+- Stellung aufbauen
 
 # Troubleshooting
 
