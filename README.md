@@ -51,6 +51,7 @@ Now that you have successfully run the app, let's modify it.
 # TODO
 
 - allow only valid moves -> transform pawn into queen
+- anzeigen wer dran ist
 - brett von anfang an aufbauen
 - add notation
 - allow return moves

@@ -2,6 +2,7 @@ import React, {useState} from 'react';
 import {View, StyleSheet, TouchableOpacity, Text} from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import {Chess} from 'chess.js';
+import PromotionModal from './PromotionModal';
 
 import BPawn from '../assets/b_pawn.svg';
 import BRook from '../assets/b_rook.svg';
@@ -37,36 +38,56 @@ const ChessGame = () => {
   const [selectedSquare, setSelectedSquare] = useState(null);
   const [isFlipped, setIsFlipped] = useState(false);
   const [errorMessage, setErrorMessage] = useState(null);
+  const [promotionSquare, setPromotionSquare] = useState(null);
+  const [isPromotionModalVisible, setPromotionModalVisible] = useState(false);
 
   const onSquarePress = (row, col) => {
-    // Konvertiert die angeklickten Koordinaten basierend auf `isFlipped`
     const adjustedRow = isFlipped ? 7 - row : row;
     const adjustedCol = isFlipped ? 7 - col : col;
 
     if (selectedSquare) {
-      const selectedRow = selectedSquare.row;
-      const selectedCol = selectedSquare.col;
-
-      // Bereite den Zug für `chess.js` vor
-      const from = `${String.fromCharCode(97 + selectedCol)}${8 - selectedRow}`;
+      const from = `${String.fromCharCode(97 + selectedSquare.col)}${
+        8 - selectedSquare.row
+      }`;
       const to = `${String.fromCharCode(97 + adjustedCol)}${8 - adjustedRow}`;
 
-      try {
-        // Führe den Zug nur aus, wenn er legal ist
-        if (game.move({from, to})) {
-          // Aktualisiere das Brett nur bei einem legalen Zug
-          setBoard(game.board());
-          setErrorMessage(null);
-        }
-      } catch (error) {
-        setErrorMessage('Illegaler Zug');
-      } finally {
-        setSelectedSquare(null);
+      const moveOptions = {from, to};
+
+      // Check if it's a pawn promotion scenario
+      const piece = game.get(from);
+      const isPawnPromotion =
+        piece?.type === 'p' && (adjustedRow === 0 || adjustedRow === 7);
+
+      if (isPawnPromotion) {
+        // Show the promotion modal and track the promotion square
+        setPromotionSquare({from, to});
+        setPromotionModalVisible(true);
+      } else {
+        // Normal move
+        handleMove(moveOptions);
       }
+      setSelectedSquare(null);
     } else {
-      // Setze die aktuelle Auswahl
       setSelectedSquare({row: adjustedRow, col: adjustedCol});
     }
+  };
+
+  const handleMove = (moveOptions, promotion = null) => {
+    try {
+      // If promotion is selected, include it in the move
+      if (game.move({...moveOptions, promotion})) {
+        setBoard(game.board());
+        setErrorMessage(null);
+      }
+    } catch (error) {
+      setErrorMessage('Illegaler Zug');
+    }
+  };
+
+  const onSelectPromotion = type => {
+    handleMove(promotionSquare, type);
+    setPromotionSquare(null);
+    setPromotionModalVisible(false);
   };
 
   const renderSquare = (piece, row, col) => {
@@ -99,6 +120,10 @@ const ChessGame = () => {
 
   return (
     <View style={styles.container}>
+      <PromotionModal
+        isVisible={isPromotionModalVisible}
+        onSelectPiece={onSelectPromotion}
+      />
       {/* Linksseitige Reihenkoordinaten */}
       <View style={styles.rowLabels}>
         {Array.from({length: 8}, (_, index) => (
