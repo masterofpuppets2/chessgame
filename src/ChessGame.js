@@ -61,11 +61,9 @@ const ChessGame = () => {
           piece?.type === 'p' && (adjustedRow === 0 || adjustedRow === 7);
 
         if (isPawnPromotion && game.move(moveOptions)) {
-          // Show the promotion modal and track the promotion square
           setPromotionSquare({from, to});
           setPromotionModalVisible(true);
         } else {
-          // Normal move
           handleMove(moveOptions);
         }
         setSelectedSquare(null);
@@ -79,11 +77,9 @@ const ChessGame = () => {
 
   const handleMove = (moveOptions, promotion = null) => {
     try {
-      // If promotion is selected, include it in the move
       if (game.move({...moveOptions, promotion})) {
         setBoard(game.board());
         setErrorMessage(null);
-
         setCurrentTurn(currentTurn === 'Weiß' ? 'Schwarz' : 'Weiß');
       }
     } catch (error) {
@@ -132,39 +128,37 @@ const ChessGame = () => {
         onSelectPiece={onSelectPromotion}
       />
 
-      {/* Linksseitige Reihenkoordinaten */}
-      <View style={styles.rowLabels}>
-        {Array.from({length: 8}, (_, index) => (
-          <Text key={index} style={styles.labelText}>
-            {isFlipped ? index + 1 : 8 - index}
-          </Text>
-        ))}
-      </View>
-
-      {/* Schachbrett und Spaltenkoordinaten */}
-      <View>
-        <View style={styles.board}>{renderBoard()}</View>
-
-        {/* Untere Spaltenkoordinaten */}
-        <View style={styles.columnLabels}>
-          {(isFlipped
-            ? ['H', 'G', 'F', 'E', 'D', 'C', 'B', 'A']
-            : ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H']
-          ).map((label, index) => (
+      <View style={styles.boardContainer}>
+        <View style={styles.rowLabels}>
+          {Array.from({length: 8}, (_, index) => (
             <Text key={index} style={styles.labelText}>
-              {label}
+              {isFlipped ? index + 1 : 8 - index}
             </Text>
           ))}
         </View>
 
-        {/* Icon zum Drehen des Bretts */}
+        <View>
+          <View style={styles.board}>{renderBoard()}</View>
+          <View style={styles.columnLabels}>
+            {(isFlipped
+              ? ['H', 'G', 'F', 'E', 'D', 'C', 'B', 'A']
+              : ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H']
+            ).map((label, index) => (
+              <Text key={index} style={styles.labelText}>
+                {label}
+              </Text>
+            ))}
+          </View>
+        </View>
+      </View>
+
+      <View>
         <TouchableOpacity
           onPress={() => setIsFlipped(!isFlipped)}
           style={styles.flipIcon}>
           <Icon name="autorenew" size={30} color="#333" />
         </TouchableOpacity>
         <Text style={styles.turnText}>{currentTurn} am Zug</Text>
-        {/* rotate-90-degrees-ccw */}
         {errorMessage && (
           <Text style={styles.errorMessage}>{errorMessage}</Text>
         )}
@@ -175,23 +169,27 @@ const ChessGame = () => {
 
 const styles = StyleSheet.create({
   container: {
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginLeft: -20,
+  },
+  boardContainer: {
     flexDirection: 'row',
     justifyContent: 'center',
     alignItems: 'center',
-    marginLeft: -20, // Verschiebt das gesamte Schachbrett nach links
   },
   turnText: {
     fontSize: 20,
     fontWeight: 'bold',
-    marginBottom: 20,
     color: '#333',
     textAlign: 'center',
-    paddingTop: 10,
+    paddingTop: 5,
   },
   errorMessage: {
     color: 'red',
     fontWeight: 'bold',
     textAlign: 'center',
+    paddingTop: 5,
   },
   board: {
     flexDirection: 'row',
@@ -207,24 +205,24 @@ const styles = StyleSheet.create({
   },
   rowLabels: {
     justifyContent: 'space-between',
-    height: 370,
-    paddingBottom: 70, // Verschiebt die Zahlen nach oben
-    paddingRight: 4, // Abstand zum Schachbrett
+    height: 330,
+    paddingRight: 4,
+    paddingBottom: 30,
   },
   columnLabels: {
     justifyContent: 'space-between',
     flexDirection: 'row',
-    paddingTop: 4,
+    paddingTop: 8,
   },
   labelText: {
     fontSize: 16,
-    fontWeight: 'bold', // Fettgedruckt
+    fontWeight: 'bold',
     textAlign: 'center',
     width: 40,
   },
   flipIcon: {
     alignItems: 'center',
-    marginTop: 16, // Abstand zum unteren Rand des Schachbretts
+    marginTop: 16,
   },
 });
 

@@ -50,11 +50,8 @@ Now that you have successfully run the app, let's modify it.
 
 # TODO
 
--verhindern das sich Koordinaten an der Seite verschieben, wenn unten mehr text hinzugefügt wird
-
-- Promotion popup nur bei legalen Zug anzeigen
-- open window, when opponent is mated, button drauf "neues spiel starten"
 - brett von anfang an aufbauen
+- open window, when opponent is mated, button drauf "neues spiel starten"
 - add notation
 - allow return moves
 
