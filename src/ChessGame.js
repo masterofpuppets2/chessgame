@@ -46,30 +46,34 @@ const ChessGame = () => {
     const adjustedRow = isFlipped ? 7 - row : row;
     const adjustedCol = isFlipped ? 7 - col : col;
 
-    if (selectedSquare) {
-      const from = `${String.fromCharCode(97 + selectedSquare.col)}${
-        8 - selectedSquare.row
-      }`;
-      const to = `${String.fromCharCode(97 + adjustedCol)}${8 - adjustedRow}`;
+    try {
+      if (selectedSquare) {
+        const from = `${String.fromCharCode(97 + selectedSquare.col)}${
+          8 - selectedSquare.row
+        }`;
+        const to = `${String.fromCharCode(97 + adjustedCol)}${8 - adjustedRow}`;
 
-      const moveOptions = {from, to};
+        const moveOptions = {from, to};
 
-      // Check if it's a pawn promotion scenario
-      const piece = game.get(from);
-      const isPawnPromotion =
-        piece?.type === 'p' && (adjustedRow === 0 || adjustedRow === 7);
+        // Check if it's a pawn promotion scenario
+        const piece = game.get(from);
+        const isPawnPromotion =
+          piece?.type === 'p' && (adjustedRow === 0 || adjustedRow === 7);
 
-      if (isPawnPromotion) {
-        // Show the promotion modal and track the promotion square
-        setPromotionSquare({from, to});
-        setPromotionModalVisible(true);
+        if (isPawnPromotion && game.move(moveOptions)) {
+          // Show the promotion modal and track the promotion square
+          setPromotionSquare({from, to});
+          setPromotionModalVisible(true);
+        } else {
+          // Normal move
+          handleMove(moveOptions);
+        }
+        setSelectedSquare(null);
       } else {
-        // Normal move
-        handleMove(moveOptions);
+        setSelectedSquare({row: adjustedRow, col: adjustedCol});
       }
-      setSelectedSquare(null);
-    } else {
-      setSelectedSquare({row: adjustedRow, col: adjustedCol});
+    } catch (error) {
+      setErrorMessage('Illegaler Zug');
     }
   };
 
