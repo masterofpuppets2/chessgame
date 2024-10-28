@@ -40,6 +40,7 @@ const ChessGame = () => {
   const [errorMessage, setErrorMessage] = useState(null);
   const [promotionSquare, setPromotionSquare] = useState(null);
   const [isPromotionModalVisible, setPromotionModalVisible] = useState(false);
+  const [currentTurn, setCurrentTurn] = useState('Weiß');
 
   const onSquarePress = (row, col) => {
     const adjustedRow = isFlipped ? 7 - row : row;
@@ -78,6 +79,8 @@ const ChessGame = () => {
       if (game.move({...moveOptions, promotion})) {
         setBoard(game.board());
         setErrorMessage(null);
+
+        setCurrentTurn(currentTurn === 'Weiß' ? 'Schwarz' : 'Weiß');
       }
     } catch (error) {
       setErrorMessage('Illegaler Zug');
@@ -124,6 +127,7 @@ const ChessGame = () => {
         isVisible={isPromotionModalVisible}
         onSelectPiece={onSelectPromotion}
       />
+
       {/* Linksseitige Reihenkoordinaten */}
       <View style={styles.rowLabels}>
         {Array.from({length: 8}, (_, index) => (
@@ -154,8 +158,9 @@ const ChessGame = () => {
           onPress={() => setIsFlipped(!isFlipped)}
           style={styles.flipIcon}>
           <Icon name="autorenew" size={30} color="#333" />
-          {/* rotate-90-degrees-ccw */}
         </TouchableOpacity>
+        <Text style={styles.turnText}>{currentTurn} am Zug</Text>
+        {/* rotate-90-degrees-ccw */}
         {errorMessage && (
           <Text style={styles.errorMessage}>{errorMessage}</Text>
         )}
@@ -171,12 +176,18 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginLeft: -20, // Verschiebt das gesamte Schachbrett nach links
   },
+  turnText: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    marginBottom: 20,
+    color: '#333',
+    textAlign: 'center',
+    paddingTop: 10,
+  },
   errorMessage: {
     color: 'red',
     fontWeight: 'bold',
     textAlign: 'center',
-    marginBottom: 10,
-    padding: 10,
   },
   board: {
     flexDirection: 'row',
@@ -205,7 +216,6 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: 'bold', // Fettgedruckt
     textAlign: 'center',
-    // paddingTop: 4,
     width: 40,
   },
   flipIcon: {
