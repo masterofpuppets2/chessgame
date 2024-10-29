@@ -3,6 +3,7 @@ import {View, StyleSheet, TouchableOpacity, Text} from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import {Chess} from 'chess.js';
 import PromotionModal from './PromotionModal';
+import CheckmateModal from './CheckmateModal';
 
 import BPawn from '../assets/b_pawn.svg';
 import BRook from '../assets/b_rook.svg';
@@ -41,6 +42,7 @@ const ChessGame = () => {
   const [promotionSquare, setPromotionSquare] = useState(null);
   const [isPromotionModalVisible, setPromotionModalVisible] = useState(false);
   const [currentTurn, setCurrentTurn] = useState('Weiß');
+  const [isCheckmateModalVisible, setCheckmateModalVisible] = useState(false);
 
   const resetBoard = () => {
     const newGame = new Chess();
@@ -51,6 +53,7 @@ const ChessGame = () => {
     setSelectedSquare(null);
     setPromotionSquare(null);
     setPromotionModalVisible(false);
+    setCheckmateModalVisible(false);
   };
 
   const onSquarePress = (row, col) => {
@@ -93,6 +96,10 @@ const ChessGame = () => {
         setBoard(game.board());
         setErrorMessage(null);
         setCurrentTurn(currentTurn === 'Weiß' ? 'Schwarz' : 'Weiß');
+
+        if (game.isCheckmate()) {
+          setCheckmateModalVisible(true);
+        }
       }
     } catch (error) {
       setErrorMessage('Illegaler Zug');
@@ -138,6 +145,12 @@ const ChessGame = () => {
       <PromotionModal
         isVisible={isPromotionModalVisible}
         onSelectPiece={onSelectPromotion}
+      />
+
+      <CheckmateModal
+        isVisible={isCheckmateModalVisible}
+        onClose={() => setCheckmateModalVisible(false)}
+        currentTurn={currentTurn}
       />
 
       <Text style={styles.header}>Schachapp</Text>
