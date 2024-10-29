@@ -33,7 +33,7 @@ const pieceImages = {
 };
 
 const ChessGame = () => {
-  const [game] = useState(new Chess());
+  const [game, setGame] = useState(new Chess());
   const [board, setBoard] = useState(game.board());
   const [selectedSquare, setSelectedSquare] = useState(null);
   const [isFlipped, setIsFlipped] = useState(false);
@@ -41,6 +41,17 @@ const ChessGame = () => {
   const [promotionSquare, setPromotionSquare] = useState(null);
   const [isPromotionModalVisible, setPromotionModalVisible] = useState(false);
   const [currentTurn, setCurrentTurn] = useState('Weiß');
+
+  const resetBoard = () => {
+    const newGame = new Chess();
+    setGame(newGame);
+    setBoard(newGame.board());
+    setCurrentTurn('Weiß');
+    setErrorMessage(null);
+    setSelectedSquare(null);
+    setPromotionSquare(null);
+    setPromotionModalVisible(false);
+  };
 
   const onSquarePress = (row, col) => {
     const adjustedRow = isFlipped ? 7 - row : row;
@@ -153,11 +164,17 @@ const ChessGame = () => {
       </View>
 
       <View>
+        <TouchableOpacity onPress={resetBoard} style={styles.iconButton}>
+          <Icon name="replay" size={30} color="#333" />
+        </TouchableOpacity>
+
         <TouchableOpacity
           onPress={() => setIsFlipped(!isFlipped)}
           style={styles.flipIcon}>
-          <Icon name="autorenew" size={30} color="#333" />
+          <Icon name="swap-vert" size={30} color="#333" />
+          {/* autorenew */}
         </TouchableOpacity>
+
         <Text style={styles.turnText}>{currentTurn} am Zug</Text>
         {errorMessage && (
           <Text style={styles.errorMessage}>{errorMessage}</Text>
@@ -221,6 +238,10 @@ const styles = StyleSheet.create({
     width: 40,
   },
   flipIcon: {
+    alignItems: 'center',
+    marginTop: 8,
+  },
+  iconButton: {
     alignItems: 'center',
     marginTop: 16,
   },

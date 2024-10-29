@@ -50,7 +50,6 @@ Now that you have successfully run the app, let's modify it.
 
 # TODO
 
-- brett von anfang an aufbauen
 - open window, when opponent is mated, button drauf "neues spiel starten"
 - add notation
 - allow return moves
