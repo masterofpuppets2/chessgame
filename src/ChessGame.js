@@ -57,32 +57,33 @@ const ChessGame = () => {
     const adjustedRow = isFlipped ? 7 - row : row;
     const adjustedCol = isFlipped ? 7 - col : col;
 
-    try {
-      if (selectedSquare) {
-        const from = `${String.fromCharCode(97 + selectedSquare.col)}${
-          8 - selectedSquare.row
-        }`;
-        const to = `${String.fromCharCode(97 + adjustedCol)}${8 - adjustedRow}`;
+    if (selectedSquare) {
+      const from = `${String.fromCharCode(97 + selectedSquare.col)}${
+        8 - selectedSquare.row
+      }`;
+      const to = `${String.fromCharCode(97 + adjustedCol)}${8 - adjustedRow}`;
 
-        const moveOptions = {from, to};
+      const piece = game.get(from);
 
-        // Check if it's a pawn promotion scenario
-        const piece = game.get(from);
-        const isPawnPromotion =
-          piece?.type === 'p' && (adjustedRow === 0 || adjustedRow === 7);
+      // Check if it's a pawn promotion scenario
+      const isPawnPromotion =
+        piece?.type === 'p' &&
+        ((piece.color === 'w' &&
+          selectedSquare.row === 1 &&
+          adjustedRow === 0) ||
+          (piece.color === 'b' &&
+            selectedSquare.row === 6 &&
+            adjustedRow === 7));
 
-        if (isPawnPromotion && game.move(moveOptions)) {
-          setPromotionSquare({from, to});
-          setPromotionModalVisible(true);
-        } else {
-          handleMove(moveOptions);
-        }
-        setSelectedSquare(null);
+      if (isPawnPromotion) {
+        setPromotionSquare({from, to});
+        setPromotionModalVisible(true);
       } else {
-        setSelectedSquare({row: adjustedRow, col: adjustedCol});
+        handleMove({from, to});
       }
-    } catch (error) {
-      setErrorMessage('Illegaler Zug');
+      setSelectedSquare(null);
+    } else {
+      setSelectedSquare({row: adjustedRow, col: adjustedCol});
     }
   };
 
@@ -139,6 +140,8 @@ const ChessGame = () => {
         onSelectPiece={onSelectPromotion}
       />
 
+      <Text style={styles.header}>Schachapp</Text>
+
       <View style={styles.boardContainer}>
         <View style={styles.rowLabels}>
           {Array.from({length: 8}, (_, index) => (
@@ -176,6 +179,7 @@ const ChessGame = () => {
         </TouchableOpacity>
 
         <Text style={styles.turnText}>{currentTurn} am Zug</Text>
+
         {errorMessage && (
           <Text style={styles.errorMessage}>{errorMessage}</Text>
         )}
@@ -189,6 +193,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     marginLeft: -20,
+    marginTop: -200,
   },
   boardContainer: {
     flexDirection: 'row',
@@ -207,6 +212,13 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     textAlign: 'center',
     paddingTop: 5,
+  },
+  header: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    textAlign: 'center',
+    paddingTop: 5,
+    paddingBottom: 20,
   },
   board: {
     flexDirection: 'row',
