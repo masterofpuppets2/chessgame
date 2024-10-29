@@ -1,5 +1,11 @@
-import React, {useState} from 'react';
-import {View, StyleSheet, TouchableOpacity, Text} from 'react-native';
+import React, {useState, useRef, useEffect} from 'react';
+import {
+  View,
+  StyleSheet,
+  TouchableOpacity,
+  Text,
+  ScrollView,
+} from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import {Chess} from 'chess.js';
 import PromotionModal from './PromotionModal';
@@ -43,6 +49,16 @@ const ChessGame = () => {
   const [isPromotionModalVisible, setPromotionModalVisible] = useState(false);
   const [currentTurn, setCurrentTurn] = useState('Weiß');
   const [isCheckmateModalVisible, setCheckmateModalVisible] = useState(false);
+  const [moveHistory, setMoveHistory] = useState([]);
+
+  const scrollViewRef = useRef();
+
+  useEffect(() => {
+    // Scrolle zum Ende, wenn sich der `moveHistory` ändert
+    if (scrollViewRef.current) {
+      scrollViewRef.current.scrollToEnd({animated: true});
+    }
+  }, [moveHistory]);
 
   const resetBoard = () => {
     const newGame = new Chess();
@@ -54,6 +70,7 @@ const ChessGame = () => {
     setPromotionSquare(null);
     setPromotionModalVisible(false);
     setCheckmateModalVisible(false);
+    setMoveHistory([]);
   };
 
   const onSquarePress = (row, col) => {
@@ -92,10 +109,25 @@ const ChessGame = () => {
 
   const handleMove = (moveOptions, promotion = null) => {
     try {
-      if (game.move({...moveOptions, promotion})) {
+      const move = game.move({...moveOptions, promotion});
+
+      if (move) {
         setBoard(game.board());
         setErrorMessage(null);
         setCurrentTurn(currentTurn === 'Weiß' ? 'Schwarz' : 'Weiß');
+
+        // setMoveHistory([...moveHistory, move.san]);
+        setMoveHistory(prevHistory => {
+          const newHistory = [...prevHistory];
+          if (currentTurn === 'Weiß') {
+            // Neue Runde beginnen
+            newHistory.push([move.san]);
+          } else {
+            // Schwarzen Zug zur aktuellen Runde hinzufügen
+            newHistory[newHistory.length - 1].push(move.san);
+          }
+          return newHistory;
+        });
 
         if (game.isCheckmate()) {
           setCheckmateModalVisible(true);
@@ -196,6 +228,22 @@ const ChessGame = () => {
         {errorMessage && (
           <Text style={styles.errorMessage}>{errorMessage}</Text>
         )}
+
+        {/* Notation */}
+        <ScrollView style={styles.notationContainer} ref={scrollViewRef}>
+          {moveHistory.map((move, index) => (
+            <View
+              key={index}
+              style={[
+                styles.notationRow,
+                index === moveHistory.length - 1 && styles.lastNotationRow,
+              ]}>
+              <Text style={styles.roundNumber}>{index + 1}.</Text>
+              <Text style={styles.whiteMove}>{move[0]}</Text>
+              <Text style={styles.blackMove}>{move[1] || ''}</Text>
+            </View>
+          ))}
+        </ScrollView>
       </View>
     </View>
   );
@@ -206,7 +254,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     marginLeft: -20,
-    marginTop: -200,
+    marginTop: -100,
   },
   boardContainer: {
     flexDirection: 'row',
@@ -269,6 +317,41 @@ const styles = StyleSheet.create({
   iconButton: {
     alignItems: 'center',
     marginTop: 16,
+  },
+  notationContainer: {
+    width: '80%',
+    maxHeight: 150,
+    marginTop: 20,
+    padding: 10,
+    backgroundColor: '#f0f0f0',
+    borderRadius: 5,
+  },
+  notationRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    paddingVertical: 1,
+  },
+  lastNotationRow: {
+    paddingBottom: 10,
+  },
+  roundNumber: {
+    width: '15%',
+    fontSize: 14,
+    paddingLeft: 10,
+    textAlign: 'right',
+  },
+  whiteMove: {
+    width: '25%',
+    fontSize: 14,
+    textAlign: 'center',
+    fontWeight: 'bold',
+  },
+  blackMove: {
+    width: '25%',
+    fontSize: 14,
+    textAlign: 'center',
+    paddingRight: 10,
+    fontWeight: 'bold',
   },
 });
 

@@ -50,9 +50,8 @@ Now that you have successfully run the app, let's modify it.
 
 # TODO
 
-- open window, when opponent is mated, button drauf "neues spiel starten"
-- add notation
-- allow return moves
+- allow return moves or forward moves (regarding the notation)
+- change piece images (use this from SchachSchweinehund for example)
 
 # Troubleshooting
 
