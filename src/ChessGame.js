@@ -112,6 +112,7 @@ const ChessGame = () => {
       const move = game.move({...moveOptions, promotion});
 
       if (move) {
+        // setGame(new Chess(game.fen())); // Speichert das Spiel in den Zustand
         setBoard(game.board());
         setErrorMessage(null);
         setCurrentTurn(currentTurn === 'Weiß' ? 'Schwarz' : 'Weiß');
@@ -135,6 +136,7 @@ const ChessGame = () => {
       }
     } catch (error) {
       setErrorMessage('Illegaler Zug');
+      setSelectedSquare(null);
     }
   };
 
