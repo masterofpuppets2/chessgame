@@ -10,34 +10,12 @@ import Icon from 'react-native-vector-icons/MaterialIcons';
 import {Chess} from 'chess.js';
 import PromotionModal from './PromotionModal';
 import CheckmateModal from './CheckmateModal';
+import PieceSetModal from './PieceSetModal';
 
-import BPawn from '../assets/b_pawn.svg';
-import BRook from '../assets/b_rook.svg';
-import BKnight from '../assets/b_knight.svg';
-import BBishop from '../assets/b_bishop.svg';
-import BQueen from '../assets/b_queen.svg';
-import BKing from '../assets/b_king.svg';
-import WPawn from '../assets/w_pawn.svg';
-import WRook from '../assets/w_rook.svg';
-import WKnight from '../assets/w_knight.svg';
-import WBishop from '../assets/w_bishop.svg';
-import WQueen from '../assets/w_queen.svg';
-import WKing from '../assets/w_king.svg';
+// Import pieceSets from the external file
+import {pieceSets} from './pieceSets';
 
-const pieceImages = {
-  bp: BPawn,
-  br: BRook,
-  bn: BKnight,
-  bb: BBishop,
-  bq: BQueen,
-  bk: BKing,
-  wp: WPawn,
-  wr: WRook,
-  wn: WKnight,
-  wb: WBishop,
-  wq: WQueen,
-  wk: WKing,
-};
+const pieceSetOptions = ['alpha', 'cburnett', 'chessnut', 'fresca'];
 
 const ChessGame = () => {
   const [game, setGame] = useState(new Chess());
@@ -50,6 +28,8 @@ const ChessGame = () => {
   const [currentTurn, setCurrentTurn] = useState('Weiß');
   const [isCheckmateModalVisible, setCheckmateModalVisible] = useState(false);
   const [moveHistory, setMoveHistory] = useState([]);
+  const [pieceSet, setPieceSet] = useState('alpha');
+  const [isPieceSetModalVisible, setPieceSetModalVisible] = useState(false);
 
   const scrollViewRef = useRef();
 
@@ -156,7 +136,7 @@ const ChessGame = () => {
         style={[styles.square, {backgroundColor}]}
         onPress={() => onSquarePress(row, col)}>
         {piece &&
-          React.createElement(pieceImages[piece.color + piece.type], {
+          React.createElement(pieceSets[pieceSet][piece.color + piece.type], {
             width: 30,
             height: 30,
           })}
@@ -174,6 +154,12 @@ const ChessGame = () => {
     );
   };
 
+  const openPieceSetModal = () => setPieceSetModalVisible(true);
+
+  const onSelectSet = set => {
+    setPieceSet(set);
+  };
+
   return (
     <View style={styles.container}>
       <PromotionModal
@@ -185,6 +171,13 @@ const ChessGame = () => {
         isVisible={isCheckmateModalVisible}
         onClose={() => setCheckmateModalVisible(false)}
         currentTurn={currentTurn}
+      />
+
+      <PieceSetModal
+        isVisible={isPieceSetModalVisible}
+        onClose={() => setPieceSetModalVisible(false)}
+        onSelectSet={onSelectSet}
+        pieceSetOptions={pieceSetOptions}
       />
 
       <Text style={styles.header}>Schachapp</Text>
@@ -223,6 +216,10 @@ const ChessGame = () => {
           style={styles.flipIcon}>
           <Icon name="swap-vert" size={30} color="#333" />
           {/* autorenew */}
+        </TouchableOpacity>
+
+        <TouchableOpacity onPress={openPieceSetModal} style={styles.iconButton}>
+          <Icon name="style" size={30} color="#333" />
         </TouchableOpacity>
 
         <Text style={styles.turnText}>{currentTurn} am Zug</Text>

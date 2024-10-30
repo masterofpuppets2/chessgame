@@ -51,7 +51,25 @@ Now that you have successfully run the app, let's modify it.
 # TODO
 
 - allow return moves or forward moves (regarding the notation)
-- change piece images (use this from SchachSchweinehund for example)
+- Stellung aufbauen
+- Schachengine versuchen einzubauen
+- Refaktoren:
+  Code-Aufteilung und Strukturierung: Durch die Aufteilung des Codes in kleinere Komponenten kannst du die Übersichtlichkeit erhöhen. Besonders der Renderprozess für das Schachbrett und die Modale könnten in eigenständige Komponenten ausgelagert werden.
+
+Datenmodell und Zustand:
+
+    Verwende useMemo für die Berechnung von displayBoard, um unnötige Render-Vorgänge zu vermeiden.
+    Der Zustand moveHistory könnte optimiert werden, indem die Historie in einer flachen Struktur gespeichert wird. Diese könnte in ein Objekt-Format umgewandelt werden, um den Zugriff und das Update zu vereinfachen.
+
+Verbesserung der Benutzeroberfläche:
+
+    Für das Styling der Züge kannst du flexiblere Styles definieren, um das Layout unabhängig von Bildschirmgrößen zu gestalten.
+    Um die aktuellen Features visuell ansprechender zu gestalten, könnte die Promotion und Checkmate-Modale um Animationen oder Tooltips ergänzt werden.
+
+Code-Optimierungen:
+
+    HandleMove-Logik: Anstatt setBoard(game.board()) direkt aufzurufen, könntest du game.fen() in einer useEffect-Abhängigkeit verwenden, um die Aktualisierung bei jedem neuen FEN-String-Update durchzuführen.
+    Zustandsmanagement: Der currentTurn könnte durch den move.color dynamisch festgelegt werden.
 
 # Troubleshooting
 
