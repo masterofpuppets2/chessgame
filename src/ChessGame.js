@@ -166,6 +166,10 @@ const ChessGame = () => {
     setMoveIndex(prevIndex => Math.min(moveHistory.length, prevIndex + 1));
   };
 
+  const jumpToMove = index => {
+    setMoveIndex(index + 1);
+  };
+
   return (
     <View style={styles.container}>
       <PromotionModal
@@ -247,33 +251,45 @@ const ChessGame = () => {
 
         {/* Notation */}
         <ScrollView style={styles.notationContainer} ref={scrollViewRef}>
-          {moveHistory.map((move, index) => {
-            // Rundennummer basierend auf dem weißen Zug
-            const round = Math.floor(index / 2) + 1;
+          {moveHistory
+            .reduce((acc, move, index) => {
+              if (index % 2 === 0) {
+                // Group white and black moves in the same round
+                acc.push({
+                  round: Math.floor(index / 2) + 1,
+                  whiteMove: move,
+                  whiteIndex: index,
+                  blackMove: moveHistory[index + 1] || null,
+                  blackIndex: index + 1,
+                });
+              }
+              return acc;
+            }, [])
+            .map((roundMove, index) => (
+              <View
+                key={index}
+                style={[
+                  styles.notationRow,
+                  index * 2 === moveHistory.length - 1 &&
+                    styles.lastNotationRow,
+                ]}>
+                <Text style={styles.roundNumber}>{roundMove.round}.</Text>
 
-            // Weißer Zug (bei geraden Index-Werten)
-            const isWhiteMove = index % 2 === 0;
-            const whiteMove = isWhiteMove ? move : null;
+                {/* White move */}
+                <TouchableOpacity
+                  onPress={() => jumpToMove(roundMove.whiteIndex)}>
+                  <Text style={styles.whiteMove}>{roundMove.whiteMove}</Text>
+                </TouchableOpacity>
 
-            // Nur bei weißen Zügen eine neue Zeile rendern (Rundennummer und beide Züge)
-            if (isWhiteMove) {
-              return (
-                <View
-                  key={index}
-                  style={[
-                    styles.notationRow,
-                    index === moveHistory.length - 1 && styles.lastNotationRow,
-                  ]}>
-                  <Text style={styles.roundNumber}>{round}.</Text>
-                  <Text style={styles.whiteMove}>{whiteMove}</Text>
-                  <Text style={styles.blackMove}>
-                    {moveHistory[index + 1] || ''}
-                  </Text>
-                </View>
-              );
-            }
-            return null; // Nichts rendern für schwarze Züge, sie werden oben eingebunden
-          })}
+                {/* Black move, only if it exists */}
+                {roundMove.blackMove && (
+                  <TouchableOpacity
+                    onPress={() => jumpToMove(roundMove.blackIndex)}>
+                    <Text style={styles.blackMove}>{roundMove.blackMove}</Text>
+                  </TouchableOpacity>
+                )}
+              </View>
+            ))}
         </ScrollView>
       </View>
     </View>
@@ -366,30 +382,31 @@ const styles = StyleSheet.create({
   },
   notationRow: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
+    justifyContent: 'flex-start',
     paddingVertical: 1,
   },
   lastNotationRow: {
     paddingBottom: 10,
   },
   roundNumber: {
-    width: '15%',
+    width: 30,
     fontSize: 14,
-    paddingLeft: 10,
+    paddingRight: 10,
     textAlign: 'right',
   },
   whiteMove: {
-    width: '25%',
+    width: 60,
     fontSize: 14,
-    textAlign: 'center',
     fontWeight: 'bold',
+    textAlign: 'right',
+    paddingRight: 10,
   },
   blackMove: {
-    width: '25%',
+    width: 60,
     fontSize: 14,
-    textAlign: 'center',
     paddingRight: 10,
     fontWeight: 'bold',
+    textAlign: 'right',
   },
 });
 

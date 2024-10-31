@@ -50,7 +50,6 @@ Now that you have successfully run the app, let's modify it.
 
 # TODO
 
-- allow return moves or forward moves -> wenn man auf Notation klickt
 - Icons unten alle nebeneinander (außer return buttons)
 - Stellung aufbauen
 - Schachengine versuchen einzubauen
