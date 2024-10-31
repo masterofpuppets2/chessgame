@@ -228,20 +228,24 @@ const ChessGame = () => {
       </View>
 
       <View>
-        <TouchableOpacity onPress={resetBoard} style={styles.iconButton}>
-          <Icon name="replay" size={30} color="#333" />
-        </TouchableOpacity>
+        <View style={styles.iconRow}>
+          <TouchableOpacity onPress={resetBoard} style={styles.iconButton}>
+            <Icon name="replay" size={30} color="#333" />
+          </TouchableOpacity>
 
-        <TouchableOpacity
-          onPress={() => setIsFlipped(!isFlipped)}
-          style={styles.flipIcon}>
-          <Icon name="swap-vert" size={30} color="#333" />
-          {/* autorenew */}
-        </TouchableOpacity>
+          <TouchableOpacity
+            onPress={() => setIsFlipped(!isFlipped)}
+            style={styles.iconButton}>
+            <Icon name="swap-vert" size={30} color="#333" />
+            {/* autorenew */}
+          </TouchableOpacity>
 
-        <TouchableOpacity onPress={openPieceSetModal} style={styles.iconButton}>
-          <Icon name="style" size={30} color="#333" />
-        </TouchableOpacity>
+          <TouchableOpacity
+            onPress={openPieceSetModal}
+            style={styles.iconButton}>
+            <Icon name="style" size={30} color="#333" />
+          </TouchableOpacity>
+        </View>
 
         <Text style={styles.turnText}>{currentTurn} am Zug</Text>
 
@@ -364,9 +368,10 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     width: 40,
   },
-  flipIcon: {
-    alignItems: 'center',
-    marginTop: 8,
+  iconRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    marginBottom: 10,
   },
   iconButton: {
     alignItems: 'center',

@@ -50,9 +50,10 @@ Now that you have successfully run the app, let's modify it.
 
 # TODO
 
-- Icons unten alle nebeneinander (außer return buttons)
+- allow drag and drop to move piece
 - Stellung aufbauen
 - Schachengine versuchen einzubauen
+- Deployen!
 
 - Refaktoren:
   Code-Aufteilung und Strukturierung: Durch die Aufteilung des Codes in kleinere Komponenten kannst du die Übersichtlichkeit erhöhen. Besonders der Renderprozess für das Schachbrett und die Modale könnten in eigenständige Komponenten ausgelagert werden.
