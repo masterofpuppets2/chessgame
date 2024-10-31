@@ -50,9 +50,11 @@ Now that you have successfully run the app, let's modify it.
 
 # TODO
 
-- allow return moves or forward moves (regarding the notation)
+- allow return moves or forward moves -> wenn man auf Notation klickt
+- Icons unten alle nebeneinander (außer return buttons)
 - Stellung aufbauen
 - Schachengine versuchen einzubauen
+
 - Refaktoren:
   Code-Aufteilung und Strukturierung: Durch die Aufteilung des Codes in kleinere Komponenten kannst du die Übersichtlichkeit erhöhen. Besonders der Renderprozess für das Schachbrett und die Modale könnten in eigenständige Komponenten ausgelagert werden.
 

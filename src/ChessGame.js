@@ -11,8 +11,6 @@ import {Chess} from 'chess.js';
 import PromotionModal from './PromotionModal';
 import CheckmateModal from './CheckmateModal';
 import PieceSetModal from './PieceSetModal';
-
-// Import pieceSets from the external file
 import {pieceSets} from './pieceSets';
 
 const pieceSetOptions = ['alpha', 'cburnett', 'chessnut', 'fresca'];
@@ -30,6 +28,7 @@ const ChessGame = () => {
   const [moveHistory, setMoveHistory] = useState([]);
   const [pieceSet, setPieceSet] = useState('alpha');
   const [isPieceSetModalVisible, setPieceSetModalVisible] = useState(false);
+  const [moveIndex, setMoveIndex] = useState(0);
 
   const scrollViewRef = useRef();
 
@@ -39,6 +38,15 @@ const ChessGame = () => {
       scrollViewRef.current.scrollToEnd({animated: true});
     }
   }, [moveHistory]);
+
+  useEffect(() => {
+    const tempGame = new Chess();
+    // Zeige nur die Züge bis zum aktuellen moveIndex an
+    moveHistory.slice(0, moveIndex).forEach(moveSan => {
+      tempGame.move(moveSan);
+    });
+    setBoard(tempGame.board());
+  }, [moveIndex, moveHistory]);
 
   const resetBoard = () => {
     const newGame = new Chess();
@@ -51,6 +59,7 @@ const ChessGame = () => {
     setPromotionModalVisible(false);
     setCheckmateModalVisible(false);
     setMoveHistory([]);
+    setMoveIndex(0);
   };
 
   const onSquarePress = (row, col) => {
@@ -96,19 +105,8 @@ const ChessGame = () => {
         setBoard(game.board());
         setErrorMessage(null);
         setCurrentTurn(currentTurn === 'Weiß' ? 'Schwarz' : 'Weiß');
-
-        // setMoveHistory([...moveHistory, move.san]);
-        setMoveHistory(prevHistory => {
-          const newHistory = [...prevHistory];
-          if (currentTurn === 'Weiß') {
-            // Neue Runde beginnen
-            newHistory.push([move.san]);
-          } else {
-            // Schwarzen Zug zur aktuellen Runde hinzufügen
-            newHistory[newHistory.length - 1].push(move.san);
-          }
-          return newHistory;
-        });
+        setMoveHistory(prevHistory => [...prevHistory, move.san]);
+        setMoveIndex(moveHistory.length + 1);
 
         if (game.isCheckmate()) {
           setCheckmateModalVisible(true);
@@ -160,6 +158,14 @@ const ChessGame = () => {
     setPieceSet(set);
   };
 
+  const goToPreviousMove = () => {
+    setMoveIndex(prevIndex => Math.max(0, prevIndex - 1));
+  };
+
+  const goToNextMove = () => {
+    setMoveIndex(prevIndex => Math.min(moveHistory.length, prevIndex + 1));
+  };
+
   return (
     <View style={styles.container}>
       <PromotionModal
@@ -206,6 +212,17 @@ const ChessGame = () => {
         </View>
       </View>
 
+      <View style={styles.historyControls}>
+        <TouchableOpacity
+          onPress={goToPreviousMove}
+          style={[styles.iconButton, styles.marginRight]}>
+          <Icon name="arrow-back" size={30} color="#333" />
+        </TouchableOpacity>
+        <TouchableOpacity onPress={goToNextMove} style={styles.iconButton}>
+          <Icon name="arrow-forward" size={30} color="#333" />
+        </TouchableOpacity>
+      </View>
+
       <View>
         <TouchableOpacity onPress={resetBoard} style={styles.iconButton}>
           <Icon name="replay" size={30} color="#333" />
@@ -230,18 +247,33 @@ const ChessGame = () => {
 
         {/* Notation */}
         <ScrollView style={styles.notationContainer} ref={scrollViewRef}>
-          {moveHistory.map((move, index) => (
-            <View
-              key={index}
-              style={[
-                styles.notationRow,
-                index === moveHistory.length - 1 && styles.lastNotationRow,
-              ]}>
-              <Text style={styles.roundNumber}>{index + 1}.</Text>
-              <Text style={styles.whiteMove}>{move[0]}</Text>
-              <Text style={styles.blackMove}>{move[1] || ''}</Text>
-            </View>
-          ))}
+          {moveHistory.map((move, index) => {
+            // Rundennummer basierend auf dem weißen Zug
+            const round = Math.floor(index / 2) + 1;
+
+            // Weißer Zug (bei geraden Index-Werten)
+            const isWhiteMove = index % 2 === 0;
+            const whiteMove = isWhiteMove ? move : null;
+
+            // Nur bei weißen Zügen eine neue Zeile rendern (Rundennummer und beide Züge)
+            if (isWhiteMove) {
+              return (
+                <View
+                  key={index}
+                  style={[
+                    styles.notationRow,
+                    index === moveHistory.length - 1 && styles.lastNotationRow,
+                  ]}>
+                  <Text style={styles.roundNumber}>{round}.</Text>
+                  <Text style={styles.whiteMove}>{whiteMove}</Text>
+                  <Text style={styles.blackMove}>
+                    {moveHistory[index + 1] || ''}
+                  </Text>
+                </View>
+              );
+            }
+            return null; // Nichts rendern für schwarze Züge, sie werden oben eingebunden
+          })}
         </ScrollView>
       </View>
     </View>
@@ -253,7 +285,14 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     marginLeft: -20,
-    marginTop: -100,
+  },
+  historyControls: {
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    marginVertical: 10,
+  },
+  marginRight: {
+    marginRight: 15,
   },
   boardContainer: {
     flexDirection: 'row',
