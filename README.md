@@ -50,7 +50,6 @@ Now that you have successfully run the app, let's modify it.
 
 # TODO
 
-- Schachengine versuchen einzubauen
 - Deployen!
 
 - Refaktoren:
