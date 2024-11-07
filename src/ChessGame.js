@@ -12,10 +12,12 @@ import PromotionModal from './PromotionModal';
 import CheckmateModal from './CheckmateModal';
 import PieceSetModal from './PieceSetModal';
 import {pieceSets} from './pieceSets';
+import {observer} from 'mobx-react-lite';
+import SetupModal from './SetupModal';
 
 const pieceSetOptions = ['alpha', 'cburnett', 'chessnut', 'fresca'];
 
-const ChessGame = () => {
+const ChessGame = observer(() => {
   const [game, setGame] = useState(new Chess());
   const [board, setBoard] = useState(game.board());
   const [selectedSquare, setSelectedSquare] = useState(null);
@@ -170,6 +172,13 @@ const ChessGame = () => {
     setMoveIndex(index + 1);
   };
 
+  const [isSetupModalVisible, setSetupModalVisible] = useState(false);
+
+  // Funktion zum Öffnen des Modals
+  const openSetupModal = () => {
+    setSetupModalVisible(true);
+  };
+
   return (
     <View style={styles.container}>
       <PromotionModal
@@ -245,6 +254,16 @@ const ChessGame = () => {
             style={styles.iconButton}>
             <Icon name="style" size={30} color="#333" />
           </TouchableOpacity>
+
+          <TouchableOpacity onPress={openSetupModal} style={styles.iconButton}>
+            <Icon name="edit" size={30} color="#333" />
+          </TouchableOpacity>
+
+          <SetupModal
+            isVisible={isSetupModalVisible}
+            onClose={() => setSetupModalVisible(false)}
+            currentPieceSet={pieceSet}
+          />
         </View>
 
         <Text style={styles.turnText}>{currentTurn} am Zug</Text>
@@ -298,7 +317,7 @@ const ChessGame = () => {
       </View>
     </View>
   );
-};
+});
 
 const styles = StyleSheet.create({
   container: {
