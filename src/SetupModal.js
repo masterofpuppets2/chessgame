@@ -10,7 +10,7 @@ import {
 import {pieceSets} from './pieceSets';
 import {Chess} from 'chess.js';
 import {observer} from 'mobx-react-lite';
-import chessStore from './Store';
+import chessStore from './ChessStore';
 
 const boardSize = 8; // 8x8 chessboard
 

@@ -14,6 +14,8 @@ import PieceSetModal from './PieceSetModal';
 import {pieceSets} from './pieceSets';
 import {observer} from 'mobx-react-lite';
 import SetupModal from './SetupModal';
+import chessStore from './ChessStore';
+import {autorun} from 'mobx';
 
 const pieceSetOptions = ['alpha', 'cburnett', 'chessnut', 'fresca'];
 
@@ -32,6 +34,26 @@ const ChessGame = observer(() => {
   const [isPieceSetModalVisible, setPieceSetModalVisible] = useState(false);
   const [moveIndex, setMoveIndex] = useState(0);
 
+  // MobX autorun verwenden, um auf FEN-Änderungen zu reagieren
+  useEffect(() => {
+    const dispose = autorun(() => {
+      const newFEN = chessStore.getFEN;
+      const newGame = new Chess(newFEN);
+      setGame(newGame);
+      setBoard(newGame.board());
+      setCurrentTurn('Weiß');
+      setErrorMessage(null);
+      setSelectedSquare(null);
+      setPromotionSquare(null);
+      setPromotionModalVisible(false);
+      setCheckmateModalVisible(false);
+      setMoveHistory([]);
+      setMoveIndex(0);
+    });
+    // Cleanup Funktion: autorun aufräumen, wenn die Komponente unmountet
+    return () => dispose();
+  }, []); // Leeres Array sorgt dafür, dass der Effekt nur einmal beim ersten Rendern ausgeführt wird
+
   const scrollViewRef = useRef();
 
   useEffect(() => {
@@ -42,7 +64,7 @@ const ChessGame = observer(() => {
   }, [moveHistory]);
 
   useEffect(() => {
-    const tempGame = new Chess();
+    const tempGame = new Chess(chessStore.getFEN);
     // Zeige nur die Züge bis zum aktuellen moveIndex an
     moveHistory.slice(0, moveIndex).forEach(moveSan => {
       tempGame.move(moveSan);
@@ -51,6 +73,7 @@ const ChessGame = observer(() => {
   }, [moveIndex, moveHistory]);
 
   const resetBoard = () => {
+    chessStore.setFEN(undefined);
     const newGame = new Chess();
     setGame(newGame);
     setBoard(newGame.board());

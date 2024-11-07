@@ -1,25 +1,18 @@
 import {makeAutoObservable} from 'mobx';
-import {Chess} from 'chess.js';
 
 class ChessStore {
-  fen = undefined; // representing the starting position
-  moveHistory = [];
-  // history = [];
-  currentTurn = 'Weiß';
-  moveIndex = 0;
-  currentBoard = [];
-  game = new Chess(this.fen);
+  fen = undefined; // undefined Initialer FEN-String (kann leer sein oder Standardstellung)
 
   constructor() {
-    makeAutoObservable(this);
-    this.updateBoard();
+    makeAutoObservable(this); // MobX macht alle Eigenschaften automatisch beobachtbar
   }
 
-  setFEN(fen) {
-    this.fen = fen;
-    this.moveHistory = [];
-    this.moveIndex = 0;
-    this.currentTurn = 'Weiß';
+  setFEN(newFEN) {
+    this.fen = newFEN;
+  }
+
+  get getFEN() {
+    return this.fen;
   }
 }
 
