@@ -33,14 +33,24 @@ const SetupModal = observer(({isVisible, onClose, currentPieceSet}) => {
   };
 
   const handleSquarePress = (row, col) => {
-    if (selectedPiece) {
-      setBoard(prevBoard => {
-        const newBoard = [...prevBoard];
-        newBoard[row][col] = selectedPiece; // Place the selected piece on the board
-        return newBoard;
-      });
-      setSelectedPiece(null); // Clear selected piece after placement
-    }
+    setBoard(prevBoard => {
+      const newBoard = [...prevBoard];
+
+      // Wenn bereits eine Figur auf dem Feld steht, entferne sie
+      if (newBoard[row][col]) {
+        newBoard[row][col] = null;
+      }
+
+      // Wenn eine Figur ausgewählt wurde, platziere sie auf dem Feld
+      if (selectedPiece) {
+        newBoard[row][col] = selectedPiece;
+      }
+
+      return newBoard;
+    });
+
+    // Setze die Auswahl nach dem Setzen der Figur zurück
+    setSelectedPiece(null);
   };
 
   const resetBoard = () => {

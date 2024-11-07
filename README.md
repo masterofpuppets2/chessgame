@@ -50,8 +50,6 @@ Now that you have successfully run the app, let's modify it.
 
 # TODO
 
-- allow drag and drop to move piece
-- Stellung aufbauen
 - Schachengine versuchen einzubauen
 - Deployen!
 
