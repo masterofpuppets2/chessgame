@@ -48,7 +48,16 @@ Now that you have successfully run the app, let's modify it.
 
    For **iOS**: Hit <kbd>Cmd ⌘</kbd> + <kbd>R</kbd> in your iOS Simulator to reload the app and see your changes!
 
+# Deploy
+
+um app bundle zu kreiieren (vorher mit keytool ein apk key generieren), in android folder ausführen:
+./gradlew bundleRelease
+und in android/app/build/outputs/bundle/release ist dann app-release.aab file drin
+
 # TODO
+
+- Stockfish einbinden
+- gegen Computer spielen können
 
 - Deployen!
 
