@@ -10,10 +10,6 @@ class ChessStore {
   setFEN(newFEN) {
     this.fen = newFEN;
   }
-
-  get getFEN() {
-    return this.fen;
-  }
 }
 
 const chessStore = new ChessStore();

@@ -1,12 +1,11 @@
 import React from 'react';
 import {Modal, View, Text, TouchableOpacity, StyleSheet} from 'react-native';
-import {CHOOSE_PIECES} from './constants';
 
 const PieceSetModal = ({isVisible, onClose, onSelectSet, pieceSetOptions}) => {
   return (
     <Modal visible={isVisible} transparent animationType="slide">
       <View style={styles.modalContainer}>
-        <Text style={styles.modalTitle}>{CHOOSE_PIECES}</Text>
+        <Text style={styles.modalTitle}>Choose a set of pieces</Text>
         {pieceSetOptions.map(set => (
           <TouchableOpacity
             key={set}

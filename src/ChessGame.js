@@ -16,7 +16,6 @@ import {observer} from 'mobx-react-lite';
 import SetupModal from './SetupModal';
 import chessStore from './ChessStore';
 import {autorun} from 'mobx';
-import {WHITE, BLACK} from './constants';
 
 const pieceSetOptions = ['alpha', 'cburnett', 'chessnut', 'fresca'];
 
@@ -28,7 +27,6 @@ const ChessGame = observer(() => {
   const [errorMessage, setErrorMessage] = useState(null);
   const [promotionSquare, setPromotionSquare] = useState(null);
   const [isPromotionModalVisible, setPromotionModalVisible] = useState(false);
-  const [currentTurn, setCurrentTurn] = useState(WHITE);
   const [isCheckmateModalVisible, setCheckmateModalVisible] = useState(false);
   const [moveHistory, setMoveHistory] = useState([]);
   const [pieceSet, setPieceSet] = useState('alpha');
@@ -38,11 +36,10 @@ const ChessGame = observer(() => {
   // MobX autorun verwenden, um auf FEN-Änderungen zu reagieren
   useEffect(() => {
     const dispose = autorun(() => {
-      const newFEN = chessStore.getFEN;
+      const newFEN = chessStore.fen;
       const newGame = new Chess(newFEN);
       setGame(newGame);
       setBoard(newGame.board());
-      setCurrentTurn(WHITE);
       setErrorMessage(null);
       setSelectedSquare(null);
       setPromotionSquare(null);
@@ -65,7 +62,7 @@ const ChessGame = observer(() => {
   }, [moveHistory]);
 
   useEffect(() => {
-    const tempGame = new Chess(chessStore.getFEN);
+    const tempGame = new Chess(chessStore.fen);
     // Zeige nur die Züge bis zum aktuellen moveIndex an
     moveHistory.slice(0, moveIndex).forEach(moveSan => {
       tempGame.move(moveSan);
@@ -78,7 +75,6 @@ const ChessGame = observer(() => {
     const newGame = new Chess();
     setGame(newGame);
     setBoard(newGame.board());
-    setCurrentTurn(WHITE);
     setErrorMessage(null);
     setSelectedSquare(null);
     setPromotionSquare(null);
@@ -127,10 +123,8 @@ const ChessGame = observer(() => {
       const move = game.move({...moveOptions, promotion});
 
       if (move) {
-        // setGame(new Chess(game.fen())); // Speichert das Spiel in den Zustand
         setBoard(game.board());
         setErrorMessage(null);
-        setCurrentTurn(currentTurn === WHITE ? BLACK : WHITE);
         setMoveHistory(prevHistory => [...prevHistory, move.san]);
         setMoveIndex(moveHistory.length + 1);
 
@@ -201,6 +195,7 @@ const ChessGame = observer(() => {
   // Funktion zum Öffnen des Modals
   const openSetupModal = () => {
     setSetupModalVisible(true);
+    chessStore.setFEN(game.fen()); //current fen, when going to SetupModal
   };
 
   return (
@@ -213,7 +208,7 @@ const ChessGame = observer(() => {
       <CheckmateModal
         isVisible={isCheckmateModalVisible}
         onClose={() => setCheckmateModalVisible(false)}
-        currentTurn={currentTurn}
+        currentTurn={game.turn() === 'w' ? 'Black' : 'White'}
       />
 
       <PieceSetModal
@@ -288,7 +283,9 @@ const ChessGame = observer(() => {
           />
         </View>
 
-        <Text style={styles.turnText}>{currentTurn} to move</Text>
+        <Text style={styles.turnText}>
+          {game.turn() === 'w' ? 'White' : 'Black'} to move
+        </Text>
 
         {errorMessage && (
           <Text style={styles.errorMessage}>{errorMessage}</Text>

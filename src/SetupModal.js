@@ -11,7 +11,7 @@ import {pieceSets} from './pieceSets';
 import {Chess} from 'chess.js';
 import {observer} from 'mobx-react-lite';
 import chessStore from './ChessStore';
-import {CHOOSE_PIECES} from './constants';
+import {RadioButton} from 'react-native-paper';
 
 const boardSize = 8; // 8x8 chessboard
 
@@ -23,6 +23,8 @@ const SetupModal = observer(({isVisible, onClose, currentPieceSet}) => {
       .fill(null)
       .map(() => Array(boardSize).fill(null)),
   ); // Initialize the board
+
+  const [turn, setTurn] = useState('White');
 
   useEffect(() => {
     setSelectedPieceSet(currentPieceSet); // Synchronize with the current set
@@ -115,7 +117,6 @@ const SetupModal = observer(({isVisible, onClose, currentPieceSet}) => {
                 : square[1].toLowerCase(); // For black pieces: a, b, c, d...
             const position =
               String.fromCharCode(97 + colIndex) + (8 - rowIndex); // Convert index to chess notation
-            console.log(`Placing ${piece} at ${position}`);
             newGame.put(
               {type: piece, color: square[0] === 'w' ? 'w' : 'b'},
               position,
@@ -124,7 +125,12 @@ const SetupModal = observer(({isVisible, onClose, currentPieceSet}) => {
         });
       });
 
-      const newFEN = newGame.fen(); // Generate the FEN string
+      let newFEN = newGame.fen(); // Generate the FEN string
+      const fenParts = newFEN.split(' ');
+
+      // Update FEN to include the correct turn
+      fenParts[1] = turn === 'White' ? 'w' : 'b';
+      newFEN = fenParts.join(' ');
 
       // Validate FEN before setting it
       const isValid = newGame.load(newFEN);
@@ -217,16 +223,36 @@ const SetupModal = observer(({isVisible, onClose, currentPieceSet}) => {
     );
   };
 
+  const handleTurnChange = value => {
+    setTurn(value);
+  };
+
   return (
     <Modal visible={isVisible} animationType="slide" transparent>
       <View style={styles.modalContainer}>
         <View style={styles.modalContent}>
-          <Text style={styles.title}>{CHOOSE_PIECES}</Text>
+          <Text style={styles.title}>Choose a set of pieces</Text>
           {renderBoard()}
           {renderPieceOptions()}
-          <TouchableOpacity onPress={onClose} style={styles.closeButton}>
-            <Text style={styles.closeButtonText}>Close</Text>
-          </TouchableOpacity>
+
+          <View style={styles.turnSelection}>
+            {/* <View style={styles.radioGroup}> */}
+            <Text>Side to move:</Text>
+            <RadioButton
+              value="White"
+              status={turn === 'White' ? 'checked' : 'unchecked'}
+              onPress={() => handleTurnChange('White')}
+            />
+            <Text>White</Text>
+            <RadioButton
+              value="Black"
+              status={turn === 'Black' ? 'checked' : 'unchecked'}
+              onPress={() => handleTurnChange('Black')}
+            />
+            <Text>Black</Text>
+            {/* </View> */}
+          </View>
+
           <TouchableOpacity
             onPress={handleApplyCustomPosition}
             style={styles.applyButton}>
@@ -234,6 +260,9 @@ const SetupModal = observer(({isVisible, onClose, currentPieceSet}) => {
           </TouchableOpacity>
           <TouchableOpacity onPress={resetBoard} style={styles.resetButton}>
             <Text style={styles.resetButtonText}>Reset</Text>
+          </TouchableOpacity>
+          <TouchableOpacity onPress={onClose} style={styles.closeButton}>
+            <Text style={styles.closeButtonText}>Close</Text>
           </TouchableOpacity>
         </View>
       </View>
@@ -254,6 +283,12 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     padding: 20,
     alignItems: 'center',
+  },
+  turnSelection: {
+    marginTop: 20,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   title: {
     fontSize: 20,

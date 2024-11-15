@@ -56,6 +56,9 @@ und in android/app/build/outputs/bundle/release ist dann app-release.aab file dr
 
 # TODO
 
+- notation an der richtigen Stelle, wenn schwarz 1. Zug
+- Patt Module
+
 - Stockfish einbinden
 - gegen Computer spielen können
 
@@ -73,11 +76,6 @@ Verbesserung der Benutzeroberfläche:
 
     Für das Styling der Züge kannst du flexiblere Styles definieren, um das Layout unabhängig von Bildschirmgrößen zu gestalten.
     Um die aktuellen Features visuell ansprechender zu gestalten, könnte die Promotion und Checkmate-Modale um Animationen oder Tooltips ergänzt werden.
-
-Code-Optimierungen:
-
-    HandleMove-Logik: Anstatt setBoard(game.board()) direkt aufzurufen, könntest du game.fen() in einer useEffect-Abhängigkeit verwenden, um die Aktualisierung bei jedem neuen FEN-String-Update durchzuführen.
-    Zustandsmanagement: Der currentTurn könnte durch den move.color dynamisch festgelegt werden.
 
 # Troubleshooting
 
