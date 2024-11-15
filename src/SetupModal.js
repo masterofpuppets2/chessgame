@@ -225,6 +225,11 @@ const SetupModal = observer(({isVisible, onClose, currentPieceSet}) => {
 
   const handleTurnChange = value => {
     setTurn(value);
+    if (value === 'Black') {
+      chessStore.setIsBlacksFirstMove(true);
+    } else {
+      chessStore.setIsBlacksFirstMove(false);
+    }
   };
 
   return (

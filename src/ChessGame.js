@@ -32,6 +32,7 @@ const ChessGame = observer(() => {
   const [pieceSet, setPieceSet] = useState('alpha');
   const [isPieceSetModalVisible, setPieceSetModalVisible] = useState(false);
   const [moveIndex, setMoveIndex] = useState(0);
+  const [notationMoveHistory, setNotationMoveHistory] = useState([]);
 
   // MobX autorun verwenden, um auf FEN-Änderungen zu reagieren
   useEffect(() => {
@@ -82,6 +83,7 @@ const ChessGame = observer(() => {
     setCheckmateModalVisible(false);
     setMoveHistory([]);
     setMoveIndex(0);
+    chessStore.setIsBlacksFirstMove(false);
   };
 
   const onSquarePress = (row, col) => {
@@ -137,6 +139,15 @@ const ChessGame = observer(() => {
       setSelectedSquare(null);
     }
   };
+
+  //correct moveHistory, when blacks first move
+  useEffect(() => {
+    const tempMoveHistory = chessStore.isBlacksFirstMove
+      ? ['...'].concat(moveHistory)
+      : moveHistory;
+
+    setNotationMoveHistory(tempMoveHistory);
+  }, [moveHistory]);
 
   const onSelectPromotion = type => {
     handleMove(promotionSquare, type);
@@ -293,7 +304,7 @@ const ChessGame = observer(() => {
 
         {/* Notation */}
         <ScrollView style={styles.notationContainer} ref={scrollViewRef}>
-          {moveHistory
+          {notationMoveHistory
             .reduce((acc, move, index) => {
               if (index % 2 === 0) {
                 // Group white and black moves in the same round
@@ -301,7 +312,7 @@ const ChessGame = observer(() => {
                   round: Math.floor(index / 2) + 1,
                   whiteMove: move,
                   whiteIndex: index,
-                  blackMove: moveHistory[index + 1] || null,
+                  blackMove: notationMoveHistory[index + 1] || null,
                   blackIndex: index + 1,
                 });
               }
@@ -312,7 +323,7 @@ const ChessGame = observer(() => {
                 key={index}
                 style={[
                   styles.notationRow,
-                  index * 2 === moveHistory.length - 1 &&
+                  index * 2 === notationMoveHistory.length - 1 &&
                     styles.lastNotationRow,
                 ]}>
                 <Text style={styles.roundNumber}>{roundMove.round}.</Text>

@@ -56,7 +56,6 @@ und in android/app/build/outputs/bundle/release ist dann app-release.aab file dr
 
 # TODO
 
-- notation an der richtigen Stelle, wenn schwarz 1. Zug
 - Patt Module
 
 - Stockfish einbinden
