@@ -1,5 +1,6 @@
 import React from 'react';
 import {Modal, View, Text, TouchableOpacity, StyleSheet} from 'react-native';
+import {WHITE, BLACK} from './constants';
 
 const CheckmateModal = ({isVisible, onClose, currentTurn}) => {
   return (
@@ -11,11 +12,10 @@ const CheckmateModal = ({isVisible, onClose, currentTurn}) => {
       <View style={styles.modalOverlay}>
         <View style={styles.modalContainer}>
           <Text style={styles.modalText}>
-            Schachmatt! {currentTurn === 'Weiß' ? 'Schwarz' : 'Weiß'} hat
-            gewonnen.
+            Checkmate! {currentTurn === WHITE ? BLACK : WHITE} has won.
           </Text>
           <TouchableOpacity style={styles.modalButton} onPress={onClose}>
-            <Text style={styles.modalButtonText}>Schließen</Text>
+            <Text style={styles.modalButtonText}>Close</Text>
           </TouchableOpacity>
         </View>
       </View>

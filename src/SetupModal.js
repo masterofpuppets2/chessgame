@@ -11,6 +11,7 @@ import {pieceSets} from './pieceSets';
 import {Chess} from 'chess.js';
 import {observer} from 'mobx-react-lite';
 import chessStore from './ChessStore';
+import {CHOOSE_PIECES} from './constants';
 
 const boardSize = 8; // 8x8 chessboard
 
@@ -81,31 +82,19 @@ const SetupModal = observer(({isVisible, onClose, currentPieceSet}) => {
 
     // Validate the number of kings
     if (whiteKings > 1) {
-      Alert.alert(
-        'Ungültige Stellung',
-        'Es darf nur einen weißen König geben.',
-      );
+      Alert.alert('Invalid position', 'There can only be one white king.');
       return false;
     }
     if (blackKings > 1) {
-      Alert.alert(
-        'Ungültige Stellung',
-        'Es darf nur einen schwarzen König geben.',
-      );
+      Alert.alert('Invalid position', 'There can only be one black king.');
       return false;
     }
     if (whiteKings === 0) {
-      Alert.alert(
-        'Ungültige Stellung',
-        'Es muss mindestens ein weißer König vorhanden sein.',
-      );
+      Alert.alert('Invalid position', 'There must be at least one white king.');
       return false;
     }
     if (blackKings === 0) {
-      Alert.alert(
-        'Ungültige Stellung',
-        'Es muss mindestens ein schwarzer König vorhanden sein.',
-      );
+      Alert.alert('Invalid position', 'There must be at least one black king.');
       return false;
     }
 
@@ -145,8 +134,8 @@ const SetupModal = observer(({isVisible, onClose, currentPieceSet}) => {
       } else {
         console.error('Error: Invalid FEN string:', newFEN);
         Alert.alert(
-          'Fehler beim Laden der Stellung',
-          'Der generierte FEN-String ist ungültig.',
+          'Error loading the position',
+          'The generated FEN string is invalid.',
         );
       }
     }
@@ -215,7 +204,7 @@ const SetupModal = observer(({isVisible, onClose, currentPieceSet}) => {
                     height: 30,
                   })
                 ) : (
-                  <Text>Figur nicht verfügbar</Text>
+                  <Text>Piece not available</Text>
                 )}
                 {selectedPiece === pieceKey && (
                   <Text style={styles.selectedText}>✔</Text>
@@ -232,19 +221,19 @@ const SetupModal = observer(({isVisible, onClose, currentPieceSet}) => {
     <Modal visible={isVisible} animationType="slide" transparent>
       <View style={styles.modalContainer}>
         <View style={styles.modalContent}>
-          <Text style={styles.title}>Wähle ein Set von Figuren</Text>
+          <Text style={styles.title}>{CHOOSE_PIECES}</Text>
           {renderBoard()}
           {renderPieceOptions()}
           <TouchableOpacity onPress={onClose} style={styles.closeButton}>
-            <Text style={styles.closeButtonText}>Schließen</Text>
+            <Text style={styles.closeButtonText}>Close</Text>
           </TouchableOpacity>
           <TouchableOpacity
             onPress={handleApplyCustomPosition}
             style={styles.applyButton}>
-            <Text style={styles.applyButtonText}>Übernehmen</Text>
+            <Text style={styles.applyButtonText}>Apply</Text>
           </TouchableOpacity>
           <TouchableOpacity onPress={resetBoard} style={styles.resetButton}>
-            <Text style={styles.resetButtonText}>Zurücksetzen</Text>
+            <Text style={styles.resetButtonText}>Reset</Text>
           </TouchableOpacity>
         </View>
       </View>

@@ -5,7 +5,7 @@ const PromotionModal = ({isVisible, onSelectPiece}) => (
   <Modal transparent={true} visible={isVisible} animationType="slide">
     <View style={styles.modalOverlay}>
       <View style={styles.modalContent}>
-        <Text style={styles.modalTitle}>Wähle eine Figur</Text>
+        <Text style={styles.modalTitle}>Choose a piece</Text>
         {['q', 'r', 'b', 'n'].map(type => (
           <TouchableOpacity
             key={type}

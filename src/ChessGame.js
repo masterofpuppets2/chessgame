@@ -16,6 +16,7 @@ import {observer} from 'mobx-react-lite';
 import SetupModal from './SetupModal';
 import chessStore from './ChessStore';
 import {autorun} from 'mobx';
+import {WHITE, BLACK} from './constants';
 
 const pieceSetOptions = ['alpha', 'cburnett', 'chessnut', 'fresca'];
 
@@ -27,7 +28,7 @@ const ChessGame = observer(() => {
   const [errorMessage, setErrorMessage] = useState(null);
   const [promotionSquare, setPromotionSquare] = useState(null);
   const [isPromotionModalVisible, setPromotionModalVisible] = useState(false);
-  const [currentTurn, setCurrentTurn] = useState('Weiß');
+  const [currentTurn, setCurrentTurn] = useState(WHITE);
   const [isCheckmateModalVisible, setCheckmateModalVisible] = useState(false);
   const [moveHistory, setMoveHistory] = useState([]);
   const [pieceSet, setPieceSet] = useState('alpha');
@@ -41,7 +42,7 @@ const ChessGame = observer(() => {
       const newGame = new Chess(newFEN);
       setGame(newGame);
       setBoard(newGame.board());
-      setCurrentTurn('Weiß');
+      setCurrentTurn(WHITE);
       setErrorMessage(null);
       setSelectedSquare(null);
       setPromotionSquare(null);
@@ -77,7 +78,7 @@ const ChessGame = observer(() => {
     const newGame = new Chess();
     setGame(newGame);
     setBoard(newGame.board());
-    setCurrentTurn('Weiß');
+    setCurrentTurn(WHITE);
     setErrorMessage(null);
     setSelectedSquare(null);
     setPromotionSquare(null);
@@ -129,7 +130,7 @@ const ChessGame = observer(() => {
         // setGame(new Chess(game.fen())); // Speichert das Spiel in den Zustand
         setBoard(game.board());
         setErrorMessage(null);
-        setCurrentTurn(currentTurn === 'Weiß' ? 'Schwarz' : 'Weiß');
+        setCurrentTurn(currentTurn === WHITE ? BLACK : WHITE);
         setMoveHistory(prevHistory => [...prevHistory, move.san]);
         setMoveIndex(moveHistory.length + 1);
 
@@ -138,7 +139,7 @@ const ChessGame = observer(() => {
         }
       }
     } catch (error) {
-      setErrorMessage('Illegaler Zug');
+      setErrorMessage('Invalid move');
       setSelectedSquare(null);
     }
   };
@@ -222,8 +223,6 @@ const ChessGame = observer(() => {
         pieceSetOptions={pieceSetOptions}
       />
 
-      <Text style={styles.header}>Schachapp</Text>
-
       <View style={styles.boardContainer}>
         <View style={styles.rowLabels}>
           {Array.from({length: 8}, (_, index) => (
@@ -289,7 +288,7 @@ const ChessGame = observer(() => {
           />
         </View>
 
-        <Text style={styles.turnText}>{currentTurn} am Zug</Text>
+        <Text style={styles.turnText}>{currentTurn} to move</Text>
 
         {errorMessage && (
           <Text style={styles.errorMessage}>{errorMessage}</Text>
@@ -373,13 +372,6 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     textAlign: 'center',
     paddingTop: 5,
-  },
-  header: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    textAlign: 'center',
-    paddingTop: 5,
-    paddingBottom: 20,
   },
   board: {
     flexDirection: 'row',
