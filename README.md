@@ -56,12 +56,8 @@ und in android/app/build/outputs/bundle/release ist dann app-release.aab file dr
 
 # TODO
 
-- Patt Module
-
 - Stockfish einbinden
 - gegen Computer spielen können
-
-- Deployen!
 
 - Refaktoren:
   Code-Aufteilung und Strukturierung: Durch die Aufteilung des Codes in kleinere Komponenten kannst du die Übersichtlichkeit erhöhen. Besonders der Renderprozess für das Schachbrett und die Modale könnten in eigenständige Komponenten ausgelagert werden.

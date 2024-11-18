@@ -1,7 +1,7 @@
 import React from 'react';
 import {Modal, View, Text, TouchableOpacity, StyleSheet} from 'react-native';
 
-const CheckmateModal = ({isVisible, onClose, currentTurn}) => {
+const ResultModal = ({isVisible, onClose, result}) => {
   return (
     <Modal
       animationType="slide"
@@ -10,9 +10,7 @@ const CheckmateModal = ({isVisible, onClose, currentTurn}) => {
       onRequestClose={onClose}>
       <View style={styles.modalOverlay}>
         <View style={styles.modalContainer}>
-          <Text style={styles.modalText}>
-            Checkmate! {currentTurn} has won.
-          </Text>
+          <Text style={styles.modalText}>{result}</Text>
           <TouchableOpacity style={styles.modalButton} onPress={onClose}>
             <Text style={styles.modalButtonText}>Close</Text>
           </TouchableOpacity>
@@ -53,4 +51,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default CheckmateModal;
+export default ResultModal;

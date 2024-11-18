@@ -9,7 +9,7 @@ import {
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import {Chess} from 'chess.js';
 import PromotionModal from './PromotionModal';
-import CheckmateModal from './CheckmateModal';
+import ResultModal from './ResultModal';
 import PieceSetModal from './PieceSetModal';
 import {pieceSets} from './pieceSets';
 import {observer} from 'mobx-react-lite';
@@ -27,12 +27,13 @@ const ChessGame = observer(() => {
   const [errorMessage, setErrorMessage] = useState(null);
   const [promotionSquare, setPromotionSquare] = useState(null);
   const [isPromotionModalVisible, setPromotionModalVisible] = useState(false);
-  const [isCheckmateModalVisible, setCheckmateModalVisible] = useState(false);
+  const [isResultModalVisible, setResultModalVisible] = useState(false);
   const [moveHistory, setMoveHistory] = useState([]);
   const [pieceSet, setPieceSet] = useState('alpha');
   const [isPieceSetModalVisible, setPieceSetModalVisible] = useState(false);
   const [moveIndex, setMoveIndex] = useState(0);
   const [notationMoveHistory, setNotationMoveHistory] = useState([]);
+  const [result, setResult] = useState('');
 
   // MobX autorun verwenden, um auf FEN-Änderungen zu reagieren
   useEffect(() => {
@@ -45,7 +46,7 @@ const ChessGame = observer(() => {
       setSelectedSquare(null);
       setPromotionSquare(null);
       setPromotionModalVisible(false);
-      setCheckmateModalVisible(false);
+      setResultModalVisible(false);
       setMoveHistory([]);
       setMoveIndex(0);
     });
@@ -80,7 +81,7 @@ const ChessGame = observer(() => {
     setSelectedSquare(null);
     setPromotionSquare(null);
     setPromotionModalVisible(false);
-    setCheckmateModalVisible(false);
+    setResultModalVisible(false);
     setMoveHistory([]);
     setMoveIndex(0);
     chessStore.setIsBlacksFirstMove(false);
@@ -131,7 +132,26 @@ const ChessGame = observer(() => {
         setMoveIndex(moveHistory.length + 1);
 
         if (game.isCheckmate()) {
-          setCheckmateModalVisible(true);
+          setResult(
+            `Checkmate! ${game.turn() === 'w' ? 'Black' : 'White'} has won.`,
+          );
+          setResultModalVisible(true);
+        }
+
+        if (game.isDraw()) {
+          let reason = '';
+          if (game.isInsufficientMaterial()) {
+            reason = 'Insufficient Material';
+          } else if (game.isThreefoldRepetition()) {
+            reason = 'Threefold Repetition';
+          } else if (game.isStalemate()) {
+            reason = 'Stalemate';
+          } else {
+            reason = '50 moves rule';
+          }
+
+          setResult(`Remis through ${reason}`);
+          setResultModalVisible(true);
         }
       }
     } catch (error) {
@@ -216,10 +236,10 @@ const ChessGame = observer(() => {
         onSelectPiece={onSelectPromotion}
       />
 
-      <CheckmateModal
-        isVisible={isCheckmateModalVisible}
-        onClose={() => setCheckmateModalVisible(false)}
-        currentTurn={game.turn() === 'w' ? 'Black' : 'White'}
+      <ResultModal
+        isVisible={isResultModalVisible}
+        onClose={() => setResultModalVisible(false)}
+        result={result}
       />
 
       <PieceSetModal
