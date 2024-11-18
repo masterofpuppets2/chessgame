@@ -1,4 +1,4 @@
-import React, {useState, useRef, useEffect} from 'react';
+import React, {useState, useRef, useEffect, useMemo} from 'react';
 import {
   View,
   StyleSheet,
@@ -32,7 +32,6 @@ const ChessGame = observer(() => {
   const [pieceSet, setPieceSet] = useState('alpha');
   const [isPieceSetModalVisible, setPieceSetModalVisible] = useState(false);
   const [moveIndex, setMoveIndex] = useState(0);
-  const [notationMoveHistory, setNotationMoveHistory] = useState([]);
   const [result, setResult] = useState('');
 
   // MobX autorun verwenden, um auf FEN-Änderungen zu reagieren
@@ -63,14 +62,18 @@ const ChessGame = observer(() => {
     }
   }, [moveHistory]);
 
+  const currentMoveHistory = useMemo(() => {
+    return moveHistory.slice(0, moveIndex);
+  }, [moveHistory, moveIndex]);
+
   useEffect(() => {
     const tempGame = new Chess(chessStore.fen);
     // Zeige nur die Züge bis zum aktuellen moveIndex an
-    moveHistory.slice(0, moveIndex).forEach(moveSan => {
+    currentMoveHistory.forEach(moveSan => {
       tempGame.move(moveSan);
     });
     setBoard(tempGame.board());
-  }, [moveIndex, moveHistory]);
+  }, [currentMoveHistory]);
 
   const resetBoard = () => {
     chessStore.setFEN(undefined);
@@ -161,12 +164,23 @@ const ChessGame = observer(() => {
   };
 
   //correct moveHistory, when blacks first move
-  useEffect(() => {
+  const notationMoveHistory = useMemo(() => {
     const tempMoveHistory = chessStore.isBlacksFirstMove
       ? ['...'].concat(moveHistory)
       : moveHistory;
 
-    setNotationMoveHistory(tempMoveHistory);
+    return tempMoveHistory.reduce((acc, move, index) => {
+      if (index % 2 === 0) {
+        acc.push({
+          round: Math.floor(index / 2) + 1,
+          whiteMove: move,
+          whiteIndex: index,
+          blackMove: tempMoveHistory[index + 1] || null,
+          blackIndex: index + 1,
+        });
+      }
+      return acc;
+    }, []);
   }, [moveHistory]);
 
   const onSelectPromotion = type => {
@@ -193,11 +207,14 @@ const ChessGame = observer(() => {
     );
   };
 
-  const renderBoard = () => {
-    const displayBoard = isFlipped
-      ? [...board].map(row => [...row].reverse()).reverse()
-      : board;
+  const displayBoard = useMemo(() => {
+    if (isFlipped) {
+      return [...board].map(row => [...row].reverse()).reverse();
+    }
+    return board;
+  }, [board, isFlipped]);
 
+  const renderBoard = () => {
     return displayBoard.map((row, rowIndex) =>
       row.map((piece, colIndex) => renderSquare(piece, rowIndex, colIndex)),
     );
@@ -229,6 +246,18 @@ const ChessGame = observer(() => {
     chessStore.setFEN(game.fen()); //current fen, when going to SetupModal
   };
 
+  const rowLabels = useMemo(() => {
+    return Array.from({length: 8}, (_, index) =>
+      isFlipped ? index + 1 : 8 - index,
+    );
+  }, [isFlipped]);
+
+  const columnLabels = useMemo(() => {
+    return isFlipped
+      ? ['H', 'G', 'F', 'E', 'D', 'C', 'B', 'A']
+      : ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H'];
+  }, [isFlipped]);
+
   return (
     <View style={styles.container}>
       <PromotionModal
@@ -250,21 +279,22 @@ const ChessGame = observer(() => {
       />
 
       <View style={styles.boardContainer}>
+        {/* Row Labels */}
         <View style={styles.rowLabels}>
-          {Array.from({length: 8}, (_, index) => (
+          {rowLabels.map((label, index) => (
             <Text key={index} style={styles.labelText}>
-              {isFlipped ? index + 1 : 8 - index}
+              {label}
             </Text>
           ))}
         </View>
 
+        {/* Board */}
         <View>
           <View style={styles.board}>{renderBoard()}</View>
+
+          {/* Column Labels */}
           <View style={styles.columnLabels}>
-            {(isFlipped
-              ? ['H', 'G', 'F', 'E', 'D', 'C', 'B', 'A']
-              : ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H']
-            ).map((label, index) => (
+            {columnLabels.map((label, index) => (
               <Text key={index} style={styles.labelText}>
                 {label}
               </Text>
@@ -324,45 +354,31 @@ const ChessGame = observer(() => {
 
         {/* Notation */}
         <ScrollView style={styles.notationContainer} ref={scrollViewRef}>
-          {notationMoveHistory
-            .reduce((acc, move, index) => {
-              if (index % 2 === 0) {
-                // Group white and black moves in the same round
-                acc.push({
-                  round: Math.floor(index / 2) + 1,
-                  whiteMove: move,
-                  whiteIndex: index,
-                  blackMove: notationMoveHistory[index + 1] || null,
-                  blackIndex: index + 1,
-                });
-              }
-              return acc;
-            }, [])
-            .map((roundMove, index) => (
-              <View
-                key={index}
-                style={[
-                  styles.notationRow,
-                  index * 2 === notationMoveHistory.length - 1 &&
-                    styles.lastNotationRow,
-                ]}>
-                <Text style={styles.roundNumber}>{roundMove.round}.</Text>
+          {notationMoveHistory.map((roundMove, index) => (
+            <View
+              key={index}
+              style={[
+                styles.notationRow,
+                index * 2 === notationMoveHistory.length - 1 &&
+                  styles.lastNotationRow,
+              ]}>
+              <Text style={styles.roundNumber}>{roundMove.round}.</Text>
 
-                {/* White move */}
+              {/* White move */}
+              <TouchableOpacity
+                onPress={() => jumpToMove(roundMove.whiteIndex)}>
+                <Text style={styles.whiteMove}>{roundMove.whiteMove}</Text>
+              </TouchableOpacity>
+
+              {/* Black move, only if it exists */}
+              {roundMove.blackMove && (
                 <TouchableOpacity
-                  onPress={() => jumpToMove(roundMove.whiteIndex)}>
-                  <Text style={styles.whiteMove}>{roundMove.whiteMove}</Text>
+                  onPress={() => jumpToMove(roundMove.blackIndex)}>
+                  <Text style={styles.blackMove}>{roundMove.blackMove}</Text>
                 </TouchableOpacity>
-
-                {/* Black move, only if it exists */}
-                {roundMove.blackMove && (
-                  <TouchableOpacity
-                    onPress={() => jumpToMove(roundMove.blackIndex)}>
-                    <Text style={styles.blackMove}>{roundMove.blackMove}</Text>
-                  </TouchableOpacity>
-                )}
-              </View>
-            ))}
+              )}
+            </View>
+          ))}
         </ScrollView>
       </View>
     </View>

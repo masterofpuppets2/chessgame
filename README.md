@@ -62,16 +62,6 @@ und in android/app/build/outputs/bundle/release ist dann app-release.aab file dr
 - Refaktoren:
   Code-Aufteilung und Strukturierung: Durch die Aufteilung des Codes in kleinere Komponenten kannst du die Übersichtlichkeit erhöhen. Besonders der Renderprozess für das Schachbrett und die Modale könnten in eigenständige Komponenten ausgelagert werden.
 
-Datenmodell und Zustand:
-
-    Verwende useMemo für die Berechnung von displayBoard, um unnötige Render-Vorgänge zu vermeiden.
-    Der Zustand moveHistory könnte optimiert werden, indem die Historie in einer flachen Struktur gespeichert wird. Diese könnte in ein Objekt-Format umgewandelt werden, um den Zugriff und das Update zu vereinfachen.
-
-Verbesserung der Benutzeroberfläche:
-
-    Für das Styling der Züge kannst du flexiblere Styles definieren, um das Layout unabhängig von Bildschirmgrößen zu gestalten.
-    Um die aktuellen Features visuell ansprechender zu gestalten, könnte die Promotion und Checkmate-Modale um Animationen oder Tooltips ergänzt werden.
-
 # Troubleshooting
 
 Emulator should be in a lower version (here: API 30). API 35 doesnt work, screen was shown shortly and then closed.
