@@ -31,7 +31,7 @@ const ChessGame = observer(() => {
   const [moveHistory, setMoveHistory] = useState([]);
   const [pieceSet, setPieceSet] = useState('alpha');
   const [isPieceSetModalVisible, setPieceSetModalVisible] = useState(false);
-  const [moveIndex, setMoveIndex] = useState(0);
+  const [, setMoveIndex] = useState(0);
   const [result, setResult] = useState('');
 
   // MobX autorun verwenden, um auf FEN-Änderungen zu reagieren
@@ -62,18 +62,13 @@ const ChessGame = observer(() => {
     }
   }, [moveHistory]);
 
-  const currentMoveHistory = useMemo(() => {
-    return moveHistory.slice(0, moveIndex);
-  }, [moveHistory, moveIndex]);
-
-  useEffect(() => {
+  const updateBoard = index => {
     const tempGame = new Chess(chessStore.fen);
-    // Zeige nur die Züge bis zum aktuellen moveIndex an
-    currentMoveHistory.forEach(moveSan => {
+    moveHistory.slice(0, index).forEach(moveSan => {
       tempGame.move(moveSan);
     });
     setBoard(tempGame.board());
-  }, [currentMoveHistory]);
+  };
 
   const resetBoard = () => {
     chessStore.setFEN(undefined);
@@ -227,15 +222,24 @@ const ChessGame = observer(() => {
   };
 
   const goToPreviousMove = () => {
-    setMoveIndex(prevIndex => Math.max(0, prevIndex - 1));
+    setMoveIndex(prevIndex => {
+      const newIndex = Math.max(0, prevIndex - 1);
+      updateBoard(newIndex);
+      return newIndex;
+    });
   };
 
   const goToNextMove = () => {
-    setMoveIndex(prevIndex => Math.min(moveHistory.length, prevIndex + 1));
+    setMoveIndex(prevIndex => {
+      const newIndex = Math.min(moveHistory.length, prevIndex + 1);
+      updateBoard(newIndex);
+      return newIndex;
+    });
   };
 
   const jumpToMove = index => {
     setMoveIndex(index + 1);
+    updateBoard(index + 1);
   };
 
   const [isSetupModalVisible, setSetupModalVisible] = useState(false);
@@ -353,15 +357,12 @@ const ChessGame = observer(() => {
         )}
 
         {/* Notation */}
-        <ScrollView style={styles.notationContainer} ref={scrollViewRef}>
+        <ScrollView
+          style={styles.notationContainer}
+          contentContainerStyle={styles.lastNotationRow}
+          ref={scrollViewRef}>
           {notationMoveHistory.map((roundMove, index) => (
-            <View
-              key={index}
-              style={[
-                styles.notationRow,
-                index * 2 === notationMoveHistory.length - 1 &&
-                  styles.lastNotationRow,
-              ]}>
+            <View key={index} style={styles.notationRow}>
               <Text style={styles.roundNumber}>{roundMove.round}.</Text>
 
               {/* White move */}
@@ -374,7 +375,7 @@ const ChessGame = observer(() => {
               {roundMove.blackMove && (
                 <TouchableOpacity
                   onPress={() => jumpToMove(roundMove.blackIndex)}>
-                  <Text style={styles.blackMove}>{roundMove.blackMove}</Text>
+                  <Text style={styles.blackMove}>{roundMove.blackMove} </Text>
                 </TouchableOpacity>
               )}
             </View>
@@ -457,19 +458,19 @@ const styles = StyleSheet.create({
   },
   notationContainer: {
     width: '80%',
-    maxHeight: 150,
+    maxHeight: 170,
     marginTop: 20,
     padding: 10,
     backgroundColor: '#f0f0f0',
     borderRadius: 5,
   },
+  lastNotationRow: {
+    paddingBottom: 20,
+  },
   notationRow: {
     flexDirection: 'row',
     justifyContent: 'flex-start',
     paddingVertical: 1,
-  },
-  lastNotationRow: {
-    paddingBottom: 10,
   },
   roundNumber: {
     width: 30,
