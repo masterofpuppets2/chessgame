@@ -50,14 +50,29 @@ Now that you have successfully run the app, let's modify it.
 
 # Deploy
 
-um app bundle zu kreiieren (vorher mit keytool ein apk key generieren), in android folder ausführen:
-./gradlew bundleRelease
-und in android/app/build/outputs/bundle/release ist dann app-release.aab file drin
+To create an app bundle:
+
+Steps to be done only once at the beginning:
+
+1. One-time setup: Generate an APK key using keytool:
+   `keytool -genkey -v -keystore your-key-name.keystore -keyalg RSA -keysize 2048 -validity 10000 -alias your-key-alias`
+
+2. One-time adjustment: Replace the app launcher icon in android/app/src/main/res/ with the correct app icon that reflects the app's purpose.
+
+Steps to be done regularly:
+
+1. Update versionCode: Increment the versionCode in android/app/build.gradle by 1. This is required to upload the app to the Google Play Console.
+
+2. Build the app bundle: Navigate to the /android folder and run the following command:
+   `./gradlew bundleRelease`
+
+3. Locate the bundle file: After the build is complete, the `app-release.aab` file will be generated in:
+   android/app/build/outputs/bundle/release/app-release.aab
 
 # TODO
 
-- Stockfish einbinden
-- gegen Computer spielen können
+- Stockfish
+- play against computer
 
 # Troubleshooting
 
