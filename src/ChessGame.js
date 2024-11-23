@@ -16,6 +16,9 @@ import {observer} from 'mobx-react-lite';
 import SetupModal from './SetupModal';
 import chessStore from './ChessStore';
 import {autorun} from 'mobx';
+import chessStore from './ChessStore';
+import {NativeModules} from 'react-native';
+const {Stockfish} = NativeModules;
 
 const pieceSetOptions = ['alpha', 'cburnett', 'chessnut', 'fresca'];
 
@@ -119,6 +122,69 @@ const ChessGame = observer(() => {
     }
   };
 
+  const [, setBestMove] = useState(null);
+  const [, setEngineStatus] = useState('Engine not started');
+
+  useEffect(() => {
+    // Starte die Engine beim ersten Laden der Komponente
+    startStockfishEngine();
+
+    // Cleanup bei der Entmontage der Komponente
+    return () => {
+      stopStockfishEngine();
+    };
+  }, []);
+
+  const startStockfishEngine = () => {
+    Stockfish.startEngine()
+      .then(() => {
+        setEngineStatus('Stockfish started');
+        console.log('Stockfish gestartet');
+      })
+      .catch(err => {
+        console.error('Fehler beim Starten:', err);
+        setEngineStatus('Fehler beim Starten der Engine');
+      });
+  };
+
+  const stopStockfishEngine = () => {
+    Stockfish.stopEngine()
+      .then(() => {
+        setEngineStatus('Stockfish stopped');
+        console.log('Stockfish gestoppt');
+      })
+      .catch(err => {
+        console.error('Fehler beim Stoppen:', err);
+        setEngineStatus('Fehler beim Stoppen der Engine');
+      });
+  };
+
+  const sendStockfishCommand = command => {
+    Stockfish.sendCommand(command)
+      .then(() => {
+        console.log(`Befehl gesendet: ${command}`);
+        readStockfishOutput();
+      })
+      .catch(err => {
+        console.error('Fehler beim Senden des Befehls:', err);
+      });
+  };
+
+  const readStockfishOutput = () => {
+    Stockfish.readOutput()
+      .then(output => {
+        console.log('Stockfish Ausgabe:', output);
+        if (output.startsWith('bestmove')) {
+          const bestMove = output.split(' ')[1];
+          setBestMove(bestMove);
+          console.log('Bester Zug:', bestMove);
+        }
+      })
+      .catch(err => {
+        console.error('Fehler beim Auslesen der Ausgabe:', err);
+      });
+  };
+
   const handleMove = (moveOptions, promotion = null) => {
     try {
       const move = game.move({...moveOptions, promotion});
@@ -128,6 +194,9 @@ const ChessGame = observer(() => {
         setErrorMessage(null);
         setMoveHistory(prevHistory => [...prevHistory, move.san]);
         setMoveIndex(moveHistory.length + 1);
+
+        sendStockfishCommand(`position fen ${game.fen}`);
+        sendStockfishCommand('go depth 15');
 
         if (game.isCheckmate()) {
           setResult(
@@ -347,6 +416,10 @@ const ChessGame = observer(() => {
             currentPieceSet={pieceSet}
           />
         </View>
+
+        <TouchableOpacity onPress={() => sendStockfishCommand('go depth 20')}>
+          <Text>Start Stockfish Analysis</Text>
+        </TouchableOpacity>
 
         <Text style={styles.turnText}>
           {game.turn() === 'w' ? 'White' : 'Black'} to move
