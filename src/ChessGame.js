@@ -31,7 +31,7 @@ const ChessGame = observer(() => {
   const [moveHistory, setMoveHistory] = useState([]);
   const [pieceSet, setPieceSet] = useState('alpha');
   const [isPieceSetModalVisible, setPieceSetModalVisible] = useState(false);
-  const [, setMoveIndex] = useState(0);
+  const [moveIndex, setMoveIndex] = useState(0);
   const [result, setResult] = useState('');
 
   // MobX autorun verwenden, um auf FEN-Änderungen zu reagieren
@@ -64,9 +64,12 @@ const ChessGame = observer(() => {
 
   const updateBoard = index => {
     const tempGame = new Chess(chessStore.fen);
+
     moveHistory.slice(0, index).forEach(moveSan => {
       tempGame.move(moveSan);
     });
+
+    setGame(tempGame);
     setBoard(tempGame.board());
   };
 
@@ -126,7 +129,15 @@ const ChessGame = observer(() => {
       if (move) {
         setBoard(game.board());
         setErrorMessage(null);
-        setMoveHistory(prevHistory => [...prevHistory, move.san]);
+        // cut notation, when new move is added
+        setMoveHistory(prevHistory => {
+          const trimmedHistory =
+            moveIndex < prevHistory.length
+              ? prevHistory.slice(0, moveIndex)
+              : prevHistory;
+
+          return [...trimmedHistory, move.san];
+        });
         setMoveIndex(moveHistory.length + 1);
 
         if (game.isCheckmate()) {
