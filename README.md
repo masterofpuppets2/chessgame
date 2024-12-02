@@ -69,10 +69,17 @@ Steps to be done regularly:
 3. Locate the bundle file: After the build is complete, the `app-release.aab` file will be generated in:
    android/app/build/outputs/bundle/release/app-release.aab
 
-# TODO
+# Stockfish
 
-- Stockfish
-- play against computer
+is running under this server:
+
+`curl -X POST https://stockfish-server-ang3.onrender.com/ -H "Content-Type: application/json" -d '{"position":"r1bqkb1r/pp2pppp/2n2n2/6B1/2pP4/2N5/PP3PPP/R2QKBNR w KQkq - 0 7","depth":15, "lines":3}'`
+
+uses under the hood this page:
+https://github.com/official-stockfish/Stockfish
+so it is currently using Stockfish 17
+
+Play against computer not really possible since the request to the server takes to long
 
 # Troubleshooting
 

@@ -33,6 +33,43 @@ const ChessGame = observer(() => {
   const [isPieceSetModalVisible, setPieceSetModalVisible] = useState(false);
   const [moveIndex, setMoveIndex] = useState(0);
   const [result, setResult] = useState('');
+  const [analysisResult, setAnalysisResult] = useState(null);
+  const [isAnalyzing, setIsAnalyzing] = useState(false);
+
+  const analyseWithStockfish = async () => {
+    const fen = game.fen();
+    setIsAnalyzing(true);
+    setAnalysisResult(null); // Reset vorherige Ergebnisse
+
+    try {
+      const response = await fetch(
+        'https://stockfish-server-ang3.onrender.com/',
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({position: fen, depth: 15, lines: 3}),
+        },
+      );
+
+      if (response.ok) {
+        const data = await response.json();
+        console.log('Variations: ', data.variants);
+        if (data.variants) {
+          setAnalysisResult(data.variants);
+        } else {
+          setAnalysisResult('No analysis available.');
+        }
+      } else {
+        setAnalysisResult('Analysis could not be performed.');
+      }
+    } catch (error) {
+      setAnalysisResult(`error: ${error.message}`);
+    } finally {
+      setIsAnalyzing(false);
+    }
+  };
 
   // MobX autorun verwenden, um auf FEN-Änderungen zu reagieren
   useEffect(() => {
@@ -318,19 +355,18 @@ const ChessGame = observer(() => {
         </View>
       </View>
 
-      <View style={styles.historyControls}>
-        <TouchableOpacity
-          onPress={goToPreviousMove}
-          style={[styles.iconButton, styles.marginRight]}>
-          <Icon name="arrow-back" size={30} color="#333" />
-        </TouchableOpacity>
-        <TouchableOpacity onPress={goToNextMove} style={styles.iconButton}>
-          <Icon name="arrow-forward" size={30} color="#333" />
-        </TouchableOpacity>
-      </View>
-
       <View>
         <View style={styles.iconRow}>
+          <TouchableOpacity
+            onPress={goToPreviousMove}
+            style={styles.iconButton}>
+            <Icon name="arrow-back" size={30} color="#333" />
+          </TouchableOpacity>
+
+          <TouchableOpacity onPress={goToNextMove} style={styles.iconButton}>
+            <Icon name="arrow-forward" size={30} color="#333" />
+          </TouchableOpacity>
+
           <TouchableOpacity onPress={resetBoard} style={styles.iconButton}>
             <Icon name="replay" size={30} color="#333" />
           </TouchableOpacity>
@@ -367,6 +403,43 @@ const ChessGame = observer(() => {
           <Text style={styles.errorMessage}>{errorMessage}</Text>
         )}
 
+        <View style={styles.stockfishContainer}>
+          <TouchableOpacity
+            style={styles.analyseButton}
+            onPress={analyseWithStockfish}
+            disabled={isAnalyzing}>
+            <Text style={styles.analyseButtonText}>
+              {isAnalyzing ? 'Analyse...' : 'Analyse with Stockfish'}
+            </Text>
+          </TouchableOpacity>
+
+          {analysisResult && (
+            <ScrollView
+              style={styles.analysisScrollView}
+              contentContainerStyle={styles.analysisContentContainer}
+              persistentScrollbar={true} // show scrollbar
+            >
+              <View style={styles.analysisResultContainer}>
+                {Array.isArray(analysisResult) ? (
+                  analysisResult.map((variant, index) => (
+                    <View key={index}>
+                      <Text style={styles.analysisText}>
+                        <Text style={styles.score}>
+                          {index + 1}. ({variant.score > 0 ? '+' : ''}{' '}
+                          {variant.score}):
+                        </Text>{' '}
+                        {variant.moves}
+                      </Text>
+                    </View>
+                  ))
+                ) : (
+                  <Text style={styles.analysisText}>{analysisResult}</Text>
+                )}
+              </View>
+            </ScrollView>
+          )}
+        </View>
+
         {/* Notation */}
         <ScrollView
           style={styles.notationContainer}
@@ -402,14 +475,6 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     marginLeft: -20,
-  },
-  historyControls: {
-    flexDirection: 'row',
-    justifyContent: 'space-around',
-    marginVertical: 10,
-  },
-  marginRight: {
-    marginRight: 15,
   },
   boardContainer: {
     flexDirection: 'row',
@@ -474,6 +539,7 @@ const styles = StyleSheet.create({
     padding: 10,
     backgroundColor: '#f0f0f0',
     borderRadius: 5,
+    alignSelf: 'center',
   },
   lastNotationRow: {
     paddingBottom: 20,
@@ -502,6 +568,40 @@ const styles = StyleSheet.create({
     paddingRight: 10,
     fontWeight: 'bold',
     textAlign: 'right',
+  },
+  stockfishContainer: {
+    marginTop: 20,
+    alignItems: 'center',
+    width: '60%',
+  },
+  analyseButton: {
+    backgroundColor: 'black',
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    borderRadius: 5,
+    marginTop: -10,
+  },
+  analyseButtonText: {
+    color: 'white',
+    fontSize: 16,
+    fontWeight: 'bold',
+  },
+  analysisScrollView: {
+    maxHeight: 100,
+    marginTop: 15,
+  },
+  analysisContentContainer: {
+    paddingRight: 5,
+  },
+  analysisResultContainer: {
+    paddingTop: 10,
+  },
+  analysisText: {
+    fontSize: 14,
+    color: '#333',
+  },
+  score: {
+    fontWeight: 'bold',
   },
 });
 
