@@ -34,12 +34,22 @@ const ChessGame = observer(() => {
   const [moveIndex, setMoveIndex] = useState(0);
   const [result, setResult] = useState('');
   const [analysisResult, setAnalysisResult] = useState(null);
-  const [isAnalyzing, setIsAnalyzing] = useState(false);
+  const [isAnalysing, setIsAnalysing] = useState(false);
+  const [analysisTime, setAnalysisTime] = useState(0);
+
+  const timerRef = useRef(null);
+  const DEPTH = 15;
+  const LINES = 5;
 
   const analyseWithStockfish = async () => {
     const fen = game.fen();
-    setIsAnalyzing(true);
+    setIsAnalysing(true);
     setAnalysisResult(null); // Reset vorherige Ergebnisse
+    setAnalysisTime(0);
+
+    timerRef.current = setInterval(() => {
+      setAnalysisTime(prevTime => prevTime + 1); // Increment time every second
+    }, 1000);
 
     try {
       const response = await fetch(
@@ -49,13 +59,12 @@ const ChessGame = observer(() => {
           headers: {
             'Content-Type': 'application/json',
           },
-          body: JSON.stringify({position: fen, depth: 15, lines: 3}),
+          body: JSON.stringify({position: fen, depth: DEPTH, lines: LINES}),
         },
       );
 
       if (response.ok) {
         const data = await response.json();
-        console.log('Variations: ', data.variants);
         if (data.variants) {
           setAnalysisResult(data.variants);
         } else {
@@ -67,7 +76,8 @@ const ChessGame = observer(() => {
     } catch (error) {
       setAnalysisResult(`error: ${error.message}`);
     } finally {
-      setIsAnalyzing(false);
+      setIsAnalysing(false);
+      clearInterval(timerRef.current);
     }
   };
 
@@ -407,9 +417,11 @@ const ChessGame = observer(() => {
           <TouchableOpacity
             style={styles.analyseButton}
             onPress={analyseWithStockfish}
-            disabled={isAnalyzing}>
+            disabled={isAnalysing}>
             <Text style={styles.analyseButtonText}>
-              {isAnalyzing ? 'Analyse...' : 'Analyse with Stockfish'}
+              {isAnalysing
+                ? `Analyse... (${analysisTime}s)`
+                : `Stockfish-Analyse (depth ${DEPTH})`}
             </Text>
           </TouchableOpacity>
 
@@ -537,7 +549,6 @@ const styles = StyleSheet.create({
     maxHeight: 170,
     marginTop: 20,
     padding: 10,
-    backgroundColor: '#f0f0f0',
     borderRadius: 5,
     alignSelf: 'center',
   },
@@ -580,11 +591,13 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     borderRadius: 5,
     marginTop: -10,
+    width: 260,
   },
   analyseButtonText: {
     color: 'white',
     fontSize: 16,
     fontWeight: 'bold',
+    textAlign: 'center',
   },
   analysisScrollView: {
     maxHeight: 100,
