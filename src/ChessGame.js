@@ -36,6 +36,7 @@ const ChessGame = observer(() => {
   const [analysisResult, setAnalysisResult] = useState(null);
   const [isAnalysing, setIsAnalysing] = useState(false);
   const [analysisTime, setAnalysisTime] = useState(0);
+  const [showHelpText, setShowHelpText] = useState(false);
 
   const timerRef = useRef(null);
   const DEPTH = 15;
@@ -425,32 +426,47 @@ const ChessGame = observer(() => {
             </Text>
           </TouchableOpacity>
 
-          {analysisResult && (
-            <ScrollView
-              style={styles.analysisScrollView}
-              contentContainerStyle={styles.analysisContentContainer}
-              persistentScrollbar={true} // show scrollbar
-            >
-              <View style={styles.analysisResultContainer}>
-                {Array.isArray(analysisResult) ? (
-                  analysisResult.map((variant, index) => (
-                    <View key={index}>
-                      <Text style={styles.analysisText}>
-                        <Text style={styles.score}>
-                          {index + 1}. ({variant.score > 0 ? '+' : ''}{' '}
-                          {variant.score}):
-                        </Text>{' '}
-                        {variant.moves}
-                      </Text>
-                    </View>
-                  ))
-                ) : (
-                  <Text style={styles.analysisText}>{analysisResult}</Text>
-                )}
-              </View>
-            </ScrollView>
+          <TouchableOpacity
+            onPress={() => setShowHelpText(!showHelpText)}
+            style={styles.helpIconContainer}>
+            <Icon name="help" size={30} color="#333" />
+          </TouchableOpacity>
+
+          {showHelpText && (
+            <View style={styles.tooltipBox}>
+              <Text style={styles.helpText}>
+                Stockfish server is relatively slow, so there may be long wait
+                times (&gt;30s) or a timeout.
+              </Text>
+            </View>
           )}
         </View>
+
+        {analysisResult && (
+          <ScrollView
+            style={styles.analysisScrollView}
+            contentContainerStyle={styles.analysisContentContainer}
+            persistentScrollbar={true} // show scrollbar
+          >
+            <View style={styles.analysisResultContainer}>
+              {Array.isArray(analysisResult) ? (
+                analysisResult.map((variant, index) => (
+                  <View key={index}>
+                    <Text style={styles.analysisText}>
+                      <Text style={styles.score}>
+                        {index + 1}. ({variant.score > 0 ? '+' : ''}{' '}
+                        {variant.score}):
+                      </Text>{' '}
+                      {variant.moves}
+                    </Text>
+                  </View>
+                ))
+              ) : (
+                <Text style={styles.analysisText}>{analysisResult}</Text>
+              )}
+            </View>
+          </ScrollView>
+        )}
 
         {/* Notation */}
         <ScrollView
@@ -584,14 +600,16 @@ const styles = StyleSheet.create({
     marginTop: 20,
     alignItems: 'center',
     width: '60%',
+    flexDirection: 'row',
+    justifyContent: 'center',
   },
   analyseButton: {
     backgroundColor: 'black',
     paddingVertical: 10,
-    paddingHorizontal: 20,
     borderRadius: 5,
     marginTop: -10,
-    width: 260,
+    width: 240,
+    marginRight: 5,
   },
   analyseButtonText: {
     color: 'white',
@@ -602,6 +620,7 @@ const styles = StyleSheet.create({
   analysisScrollView: {
     maxHeight: 100,
     marginTop: 15,
+    width: '60%',
   },
   analysisContentContainer: {
     paddingRight: 5,
@@ -615,6 +634,26 @@ const styles = StyleSheet.create({
   },
   score: {
     fontWeight: 'bold',
+  },
+  helpIconContainer: {
+    marginBottom: 8, // Aligning the question mark vertically with the button
+  },
+  tooltipBox: {
+    backgroundColor: 'black',
+    padding: 10,
+    borderRadius: 5,
+    position: 'absolute',
+    top: 45,
+    left: 30,
+    right: -10,
+    marginTop: 5,
+    marginLeft: -60,
+    zIndex: 1,
+  },
+  helpText: {
+    color: 'white',
+    fontSize: 14,
+    textAlign: 'center',
   },
 });
 
