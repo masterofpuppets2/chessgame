@@ -41,7 +41,7 @@ const ChessGame = observer(() => {
   const timerRef = useRef(null);
   const DEPTH = 15;
   const LINES = 5;
-  const ABORT_TIME = 2; //in min
+  const ABORT_TIME = 5; //in min
 
   const analyseWithStockfish = async () => {
     const fen = game.fen();
@@ -56,7 +56,7 @@ const ChessGame = observer(() => {
     const controller = new AbortController();
     setTimeout(() => {
       controller.abort(); // Abbrechen nach 2 Minuten
-    }, 2 * 60 * 1000); // Anzahlmin*min*sec
+    }, ABORT_TIME * 60 * 1000); // Anzahlmin*min*sec
 
     try {
       const response = await fetch(
@@ -66,7 +66,11 @@ const ChessGame = observer(() => {
           headers: {
             'Content-Type': 'application/json',
           },
-          body: JSON.stringify({position: fen, depth: DEPTH, lines: LINES}),
+          body: JSON.stringify({
+            position: fen,
+            depth: DEPTH,
+            lines: LINES,
+          }),
           signal: controller.signal,
         },
       );
@@ -446,8 +450,9 @@ const ChessGame = observer(() => {
           {showHelpText && (
             <View style={styles.tooltipBox}>
               <Text style={styles.helpText}>
-                Stockfish server is relatively slow, so there may be long wait
-                times (&gt;30s) or a timeout.
+                Stockfish server is relatively slow, so there may be long
+                waiting times (&gt;30s). After {ABORT_TIME} minutes, the request
+                will be automatically canceled.
               </Text>
             </View>
           )}
