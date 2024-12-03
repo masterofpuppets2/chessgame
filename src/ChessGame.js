@@ -41,6 +41,7 @@ const ChessGame = observer(() => {
   const timerRef = useRef(null);
   const DEPTH = 15;
   const LINES = 5;
+  const ABORT_TIME = 2; //in min
 
   const analyseWithStockfish = async () => {
     const fen = game.fen();
@@ -52,6 +53,11 @@ const ChessGame = observer(() => {
       setAnalysisTime(prevTime => prevTime + 1); // Increment time every second
     }, 1000);
 
+    const controller = new AbortController();
+    setTimeout(() => {
+      controller.abort(); // Abbrechen nach 2 Minuten
+    }, 2 * 60 * 1000); // Anzahlmin*min*sec
+
     try {
       const response = await fetch(
         'https://stockfish-server-ang3.onrender.com/',
@@ -61,6 +67,7 @@ const ChessGame = observer(() => {
             'Content-Type': 'application/json',
           },
           body: JSON.stringify({position: fen, depth: DEPTH, lines: LINES}),
+          signal: controller.signal,
         },
       );
 
@@ -75,7 +82,11 @@ const ChessGame = observer(() => {
         setAnalysisResult('Analysis could not be performed.');
       }
     } catch (error) {
-      setAnalysisResult(`error: ${error.message}`);
+      if (error.name === 'AbortError') {
+        setAnalysisResult(`Request took longer than ${ABORT_TIME} min.`);
+      } else {
+        setAnalysisResult(`Error: ${error.message}`);
+      }
     } finally {
       setIsAnalysing(false);
       clearInterval(timerRef.current);
