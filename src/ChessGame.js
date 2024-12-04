@@ -437,7 +437,7 @@ const ChessGame = observer(() => {
             <Text style={styles.analyseButtonText}>
               {isAnalysing
                 ? `Analyse... (${analysisTime}s)`
-                : `Stockfish-Analyse (depth ${DEPTH})`}
+                : `Stockfish (depth ${DEPTH})`}
             </Text>
           </TouchableOpacity>
 
@@ -519,6 +519,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     marginLeft: -20,
+    marginTop: 10,
   },
   boardContainer: {
     flexDirection: 'row',
@@ -624,7 +625,7 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
     borderRadius: 5,
     marginTop: -10,
-    width: 240,
+    width: 170,
     marginRight: 5,
   },
   analyseButtonText: {
@@ -635,7 +636,6 @@ const styles = StyleSheet.create({
   },
   analysisScrollView: {
     maxHeight: 100,
-    marginTop: 15,
     width: '60%',
   },
   analysisContentContainer: {
