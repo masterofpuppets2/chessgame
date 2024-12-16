@@ -269,8 +269,8 @@ const ChessGame = observer(() => {
         onPress={() => onSquarePress(row, col)}>
         {piece &&
           React.createElement(pieceSets[pieceSet][piece.color + piece.type], {
-            width: 30,
-            height: 30,
+            width: 38,
+            height: 38,
           })}
       </TouchableOpacity>
     );
